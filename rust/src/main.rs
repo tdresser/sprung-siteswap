@@ -15,7 +15,6 @@ fn normalize(pairs: Pairs<Rule>, pattern: &mut Pattern) {
     for pair in pairs {
         match pair.as_rule() {
             Rule::notation => normalize(pair.into_inner(), pattern),
-            Rule::s => print!("{}", pair.as_str()),
             Rule::base => {
                 pattern.siteswap = match pair.as_str().chars().nth(0).unwrap() {
                     'B' => vec![2u32],
@@ -32,9 +31,8 @@ fn normalize(pairs: Pairs<Rule>, pattern: &mut Pattern) {
                     _ => unreachable!(),
                 };
             }
-            Rule::position => println!("position: {}", pair.as_str()),
-            Rule::digit => unreachable!(),
-            Rule::ss => unreachable!(),
+            Rule::position => pattern.nonzip_positions = vec![pair.as_str().to_string()],
+            Rule::s | Rule::ss | Rule::digit => unreachable!(),
         };
     }
 }
@@ -58,8 +56,33 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    use crate::parse;
+
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn box_base() {
+        let pattern = parse("cB");
+        assert_eq!(pattern.siteswap, vec![2]);
+        assert_eq!(pattern.nonzip_positions, vec!["c"]);
+    }
+
+    #[test]
+    fn cascade_base() {
+        let pattern = parse("iC");
+        assert_eq!(pattern.siteswap, vec![3]);
+        assert_eq!(pattern.nonzip_positions, vec!["i"]);
+    }
+
+    #[test]
+    fn fountain_base() {
+        let pattern = parse("ciF");
+        assert_eq!(pattern.siteswap, vec![4]);
+        assert_eq!(pattern.nonzip_positions, vec!["ci"]);
+    }
+
+    #[test]
+    fn sprung_base() {
+        let pattern = parse("icS312");
+        assert_eq!(pattern.siteswap, vec![3, 1, 2]);
+        assert_eq!(pattern.nonzip_positions, vec!["ic"]);
     }
 }
