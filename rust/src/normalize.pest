@@ -1,0 +1,7 @@
+digit = _{ '0'..'9' }
+ss = { digit+ }
+s = { "S" ~ ss }
+base = { "B" | "C" | "F" | s }
+position = { "ci" | "ic" | "i" | "c" }
+
+notation = { position? ~ base }

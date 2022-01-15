@@ -1,4 +1,0 @@
-s = { "S" }
-digit = { '0'..'9' }
-ss = { s ~ digit* }
-notation = { ss }
