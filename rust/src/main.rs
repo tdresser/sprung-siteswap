@@ -37,9 +37,19 @@ fn get_position_str((a, b): &(Position, Position)) -> String {
 impl Pattern {
     fn get_canonical_form(self) -> String {
         let mut result = "".to_string();
-        let current_position = "n".to_string();
+        // TODO: collapse case where all zip positions are the same.
         for zip_position in &self.zip_positions {
             result = format!("{}{}z", result, get_position_str(zip_position));
+        }
+        result += "S";
+        assert!(self.nonzip_positions.len() == self.siteswap.len());
+        for i in 0..self.nonzip_positions.len() {
+            result = format!(
+                "{}{}{}",
+                result,
+                get_position_str(&self.nonzip_positions[i]),
+                char::from_digit(self.siteswap[i], 16).unwrap(),
+            );
         }
         return result;
     }
@@ -132,6 +142,8 @@ fn parse_positioned_digits(pattern: &mut Pattern, pairs: &mut Pairs<Rule>) {
                             position_or_digit.into_inner().next().unwrap(),
                         ));
                         position_or_digit = inner.next().unwrap();
+                    } else {
+                        positions.push((Position::BottomNatural, Position::BottomNatural));
                     }
                     let digit = position_or_digit;
 
