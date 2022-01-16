@@ -36,9 +36,11 @@ fn get_position_str((a, b): &(Position, Position)) -> String {
 
 // Collapses repetition. e.g., cici -> ci.
 fn collapse_positions(positions: &Vec<(Position, Position)>) -> Vec<(Position, Position)> {
-    println!("LEN: {}", positions.len());
+    if positions.len() == 0 {
+        return vec![];
+    }
     for n in (1..positions.len() + 1).rev() {
-        println!("N is {}", n);
+        println!("N {}", n);
         // Can we divide |positions| into chunks of length n?
         if positions.len() % n != 0 {
             continue;
@@ -46,12 +48,12 @@ fn collapse_positions(positions: &Vec<(Position, Position)>) -> Vec<(Position, P
         // Are all chunks equal?
         let mut chunks = positions.chunks_exact(positions.len() / n);
         let first = chunks.nth(0).unwrap();
-        println!("FIRST {:?}", first.to_vec());
         if chunks.all(|x| x == first) {
             // All chunks are equal, we're done.
             return first.to_vec();
         }
     }
+    println!("{:?}", positions);
     unreachable!();
 }
 
@@ -68,13 +70,17 @@ impl Pattern {
         }
         result += "S";
         assert!(self.nonzip_positions.len() == self.siteswap.len());
+
+        let mut current_position = "n".to_string();
         for i in 0..self.nonzip_positions.len() {
-            result = format!(
-                "{}{}{}",
-                result,
-                get_position_str(&self.nonzip_positions[i]),
-                char::from_digit(self.siteswap[i], 16).unwrap(),
-            );
+            let new_position = get_position_str(&self.nonzip_positions[i]);
+            let digit = char::from_digit(self.siteswap[i], 16).unwrap();
+            if current_position == new_position {
+                result = format!("{}{}", result, digit,);
+            } else {
+                result = format!("{}{}{}", result, new_position, digit,);
+            }
+            current_position = new_position;
         }
 
         return result;
@@ -209,6 +215,8 @@ fn parse(s: &str) -> Pattern {
         if next.as_rule() == Rule::position {
             inner.next();
             pattern.nonzip_positions = vec![parse_position(next.into_inner().next().unwrap())];
+        } else {
+            pattern.nonzip_positions = vec![(Position::BottomNatural, Position::BottomNatural)];
         }
         pattern.siteswap = match inner.next().unwrap().as_rule() {
             Rule::B => vec![2u32],
@@ -216,13 +224,15 @@ fn parse(s: &str) -> Pattern {
             Rule::F => vec![4u32],
             _ => unreachable!(),
         };
-        print_pairs(&mut inner);
+        println!("BWA");
+        println!("{:?}", pattern.nonzip_positions);
+        println!("{:?}", pattern.siteswap);
     } else if top.as_rule() == Rule::fullnotation {
         let mut inner = top.into_inner();
         println!("Full");
         pattern.zip_positions = parse_zip_positions(&mut inner);
         parse_positioned_digits(&mut pattern, &mut inner);
-        print_pairs(&mut inner);
+        println!("{:?}", pattern);
     }
 
     return pattern;
@@ -293,11 +303,23 @@ mod tests {
 
     #[test]
     fn sprung_base() {
-        let pattern = parse("icS312");
+        let pattern = parse("iczS312");
         assert_eq!(pattern.siteswap, vec![3, 1, 2]);
         assert_eq!(
-            pattern.nonzip_positions,
+            pattern.zip_positions,
             vec![(Position::TopOpposite, Position::TopOpposite)]
         );
+    }
+
+    #[test]
+    fn collapse_zipped() {
+        let mut pattern = parse("izicziziczB");
+        assert_eq!(pattern.get_canonical_form(), "izcizS2");
+    }
+
+    #[test]
+    fn collapse_siteswap_positions() {
+        let mut pattern = parse("Sc3c1n2");
+        assert_eq!(pattern.get_canonical_form(), "Sc31n2");
     }
 }

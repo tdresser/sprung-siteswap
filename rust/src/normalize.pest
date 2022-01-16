@@ -20,7 +20,7 @@ zip_position = { crossed_inverted | inverted | crossed | natural | position_pair
 
 zip_positions = _{ (zip_position ~ "z")* }
 
-shortnotation = { zip_positions ~ position ~ base }
+shortnotation = { zip_positions ~ position? ~ base }
 
 digit = { ASCII_HEX_DIGIT }
 positioned_digit = { position? ~ digit}
