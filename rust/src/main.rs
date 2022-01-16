@@ -15,31 +15,24 @@ struct Pattern {
     siteswap: Vec<u32>,
 }
 
-/*fn normalize(pairs: Pairs<Rule>, pattern: &mut Pattern) {
-    for pair in pairs {
-        match pair.as_rule() {
-            Rule::notation => normalize(pair.into_inner(), pattern),
-            Rule::base => {
-                pattern.siteswap = match pair.as_str().chars().nth(0).unwrap() {
-                    'B' => vec![2u32],
-                    'C' => vec![3u32],
-                    'F' => vec![4u32],
-                    'S' => {
-                        let mut chars = pair.as_str().chars();
-                        // Skip over the S.
-                        chars.next();
-                        println!("CHARS: {:?}", chars);
-                        let digits = chars.map(|x: char| x.to_digit(16).unwrap());
-                        digits.collect::<Vec<_>>()
-                    }
-                    _ => unreachable!(),
-                };
-            }
-            Rule::position => pattern.nonzip_positions = vec![pair.as_str().to_string()],
-            Rule::s | Rule::ss | Rule::digit => unreachable!(),
-        };
+fn get_zip_position_str((a, b): &(Position, Position)) -> String {
+    return match (a, b) {
+        (Position::BottomNatural, &Position::BottomNatural) => "n",
+        _ => unreachable!(),
     }
-}*/
+    .to_string();
+}
+
+impl Pattern {
+    fn get_canonical_form(self) -> String {
+        let mut result = "".to_string();
+        let current_position = "n".to_string();
+        for zip_position in &self.zip_positions {
+            result = format!("{}{}z", result, get_zip_position_str(zip_position));
+        }
+        return result;
+    }
+}
 
 #[derive(Debug, PartialEq)]
 enum Position {
