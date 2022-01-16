@@ -37,9 +37,28 @@ fn get_position_str((a, b): &(Position, Position)) -> String {
 impl Pattern {
     fn get_canonical_form(self) -> String {
         let mut result = "".to_string();
-        // TODO: collapse case where all zip positions are the same.
-        for zip_position in &self.zip_positions {
-            result = format!("{}{}z", result, get_position_str(zip_position));
+        // If they're all the same, collapse.
+        // TODO, ideally we'd identify repetitions. e.g., czizcziz => cziz.
+        let mut current_position: Option<&(Position, Position)> = None;
+        let mut consistent_positions = true;
+        for position in &self.zip_positions {
+            match current_position {
+                None => current_position = Some(position),
+                Some(pos) => {
+                    if *pos != *position {
+                        consistent_positions = false;
+                        println!("Inconsistent positions {:?} {:?}", pos, position);
+                        break;
+                    }
+                }
+            }
+        }
+        if consistent_positions {
+            result = format!("{}{}z", result, get_position_str(current_position.unwrap()));
+        } else {
+            for zip_position in &self.zip_positions {
+                result = format!("{}{}z", result, get_position_str(zip_position));
+            }
         }
         result += "S";
         assert!(self.nonzip_positions.len() == self.siteswap.len());
@@ -51,6 +70,7 @@ impl Pattern {
                 char::from_digit(self.siteswap[i], 16).unwrap(),
             );
         }
+
         return result;
     }
 }
@@ -203,7 +223,11 @@ fn parse(s: &str) -> Pattern {
 }
 
 fn main() {
-    let pattern = parse("czizTtzS312");
+    /*let pattern = parse("czizTtzS312");
+    println!("{:?}\n", pattern);
+    println!("{}", pattern.get_canonical_form());*/
+
+    let pattern = parse("czczS312");
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());
 
