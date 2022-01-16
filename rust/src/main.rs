@@ -72,7 +72,6 @@ fn parse_position(pair: Pair<Rule>) -> (Position, Position) {
             assert!(positions.next() == None);
             return (map_advanced_position(p1), map_advanced_position(p2));
         }
-        // TODO, the hard case.
         _ => unreachable!(),
     };
 }
@@ -131,13 +130,23 @@ fn parse(s: &str) -> Pattern {
     let top = pairs.next().unwrap();
     assert!(pairs.next() == None);
 
-    //let top = &pairs[0];
-    //let top = pairs[0].as_rule();
-
     if top.as_rule() == Rule::shortnotation {
         let mut inner = top.into_inner();
         println!("Short");
         pattern.zip_positions = parse_zip_positions(&mut inner);
+
+        // Next up is an optional position.
+        let next = inner.peek().unwrap();
+        if next.as_rule() == Rule::position {
+            inner.next();
+            pattern.nonzip_positions = vec![parse_position(next.into_inner().next().unwrap())];
+        }
+        pattern.siteswap = match inner.next().unwrap().as_rule() {
+            Rule::B => vec![2u32],
+            Rule::C => vec![3u32],
+            Rule::F => vec![4u32],
+            _ => unreachable!(),
+        };
         print_pairs(&mut inner);
 
         //pattern.nonzip_positions = parse_nonzip_positions(&mut inner);
