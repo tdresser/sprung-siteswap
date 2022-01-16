@@ -34,31 +34,37 @@ fn get_position_str((a, b): &(Position, Position)) -> String {
     };
 }
 
-impl Pattern {
-    fn get_canonical_form(self) -> String {
-        let mut result = "".to_string();
-        // If they're all the same, collapse.
-        // TODO, ideally we'd identify repetitions. e.g., czizcziz => cziz.
-        let mut current_position: Option<&(Position, Position)> = None;
-        let mut consistent_positions = true;
-        for position in &self.zip_positions {
-            match current_position {
-                None => current_position = Some(position),
-                Some(pos) => {
-                    if *pos != *position {
-                        consistent_positions = false;
-                        println!("Inconsistent positions {:?} {:?}", pos, position);
-                        break;
-                    }
-                }
-            }
+// Collapses repetition. e.g., cici -> ci.
+fn collapse_positions(positions: &Vec<(Position, Position)>) -> Vec<(Position, Position)> {
+    println!("LEN: {}", positions.len());
+    for n in (1..positions.len() + 1).rev() {
+        println!("N is {}", n);
+        // Can we divide |positions| into chunks of length n?
+        if positions.len() % n != 0 {
+            continue;
         }
-        if consistent_positions {
-            result = format!("{}{}z", result, get_position_str(current_position.unwrap()));
-        } else {
-            for zip_position in &self.zip_positions {
-                result = format!("{}{}z", result, get_position_str(zip_position));
-            }
+        // Are all chunks equal?
+        let mut chunks = positions.chunks_exact(positions.len() / n);
+        let first = chunks.nth(0).unwrap();
+        println!("FIRST {:?}", first.to_vec());
+        if chunks.all(|x| x == first) {
+            // All chunks are equal, we're done.
+            return first.to_vec();
+        }
+    }
+    unreachable!();
+}
+
+impl Pattern {
+    fn normalize(&mut self) {
+        self.zip_positions = collapse_positions(&self.zip_positions);
+    }
+
+    fn get_canonical_form(&mut self) -> String {
+        self.normalize();
+        let mut result = "".to_string();
+        for zip_position in &self.zip_positions {
+            result = format!("{}{}z", result, get_position_str(zip_position));
         }
         result += "S";
         assert!(self.nonzip_positions.len() == self.siteswap.len());
@@ -75,7 +81,7 @@ impl Pattern {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 enum Position {
     BottomNatural,
     BottomOpposite,
@@ -227,7 +233,7 @@ fn main() {
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());*/
 
-    let pattern = parse("czczS312");
+    let mut pattern = parse("czizczizS312");
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());
 
