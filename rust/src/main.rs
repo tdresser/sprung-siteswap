@@ -15,12 +15,23 @@ struct Pattern {
     siteswap: Vec<u32>,
 }
 
-fn get_zip_position_str((a, b): &(Position, Position)) -> String {
+fn get_advanced_position_str(a: &Position) -> &str {
+    return match a {
+        Position::BottomNatural => "B",
+        Position::BottomOpposite => "b",
+        Position::TopNatural => "T",
+        Position::TopOpposite => "t",
+    };
+}
+
+fn get_position_str((a, b): &(Position, Position)) -> String {
     return match (a, b) {
-        (Position::BottomNatural, &Position::BottomNatural) => "n",
-        _ => unreachable!(),
-    }
-    .to_string();
+        (Position::BottomNatural, &Position::BottomNatural) => "n".to_string(),
+        (Position::BottomOpposite, &Position::BottomOpposite) => "c".to_string(),
+        (Position::TopNatural, &Position::TopNatural) => "i".to_string(),
+        (Position::TopOpposite, &Position::TopOpposite) => "ci".to_string(),
+        (a, b) => get_advanced_position_str(a).to_owned() + get_advanced_position_str(b),
+    };
 }
 
 impl Pattern {
@@ -28,7 +39,7 @@ impl Pattern {
         let mut result = "".to_string();
         let current_position = "n".to_string();
         for zip_position in &self.zip_positions {
-            result = format!("{}{}z", result, get_zip_position_str(zip_position));
+            result = format!("{}{}z", result, get_position_str(zip_position));
         }
         return result;
     }
@@ -180,10 +191,11 @@ fn parse(s: &str) -> Pattern {
 }
 
 fn main() {
-    let mut pattern = parse("czS312");
+    let pattern = parse("czizTtzS312");
     println!("{:?}\n", pattern);
+    println!("{}", pattern.get_canonical_form());
 
-    pattern = parse("cB");
+    /*pattern = parse("cB");
     println!("{:?}\n", pattern);
 
     pattern = parse("izcB");
@@ -199,7 +211,7 @@ fn main() {
     println!("{:?}\n", pattern);
 
     pattern = parse("TbzBbB");
-    println!("{:?}\n", pattern);
+    println!("{:?}\n", pattern);*/
 }
 
 #[cfg(test)]
