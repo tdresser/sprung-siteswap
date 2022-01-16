@@ -2,16 +2,23 @@ B = {"B"}
 C = {"C"}
 F = {"F"}
 base = _{ B | C | F }
+
 crossed_inverted = { "ci" | "ic" }
 inverted = {"i"}
 crossed = {"c"}
 natural = {"n"}
 
-position = _{ crossed_inverted | inverted | crossed | natural }
+bottom_natural = { "B" }
+bottom_opposite = { "b" }
+top_natural = { "T" }
+top_opposite = { "t" }
+position_pair_item = _{ bottom_natural | bottom_opposite | top_natural | top_opposite }
+position_pair = { position_pair_item ~ position_pair_item }
 
-zip_position_raw = { position }
-zip_position = _{ zip_position_raw ~ "z" }
-zip_positions = _{ zip_position* }
+position = { crossed_inverted | inverted | crossed | natural | position_pair }
+zip_position = { crossed_inverted | inverted | crossed | natural | position_pair }
+
+zip_positions = _{ (zip_position ~ "z")* }
 
 shortnotation = { zip_positions ~ position ~ base }
 

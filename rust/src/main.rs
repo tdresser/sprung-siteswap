@@ -93,7 +93,23 @@ fn parse(s: &str) -> Pattern {
 fn main() {
     let mut pattern = parse("czS312");
     println!("{:?}\n", pattern);
+
     pattern = parse("cB");
+    println!("{:?}\n", pattern);
+
+    pattern = parse("izcB");
+    println!("{:?}\n", pattern);
+
+    pattern = parse("czSc3ci1n2");
+    println!("{:?}\n", pattern);
+
+    pattern = parse("izczSc3ci1n2");
+    println!("{:?}\n", pattern);
+
+    pattern = parse("bbzSTb3c1ic2");
+    println!("{:?}\n", pattern);
+
+    pattern = parse("TbzBbB");
     println!("{:?}\n", pattern);
 }
 
