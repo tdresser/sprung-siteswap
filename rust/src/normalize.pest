@@ -1,7 +1,21 @@
-digit = _{ '0'..'9' }
-ss = { digit+ }
-s = { "S" ~ ss }
-base = { "B" | "C" | "F" | s }
-position = { "ci" | "ic" | "i" | "c" }
+B = {"B"}
+C = {"C"}
+F = {"F"}
+base = _{ B | C | F }
+crossed_inverted = { "ci" | "ic" }
+inverted = {"i"}
+crossed = {"c"}
+natural = {"n"}
 
-notation = { position? ~ base }
+position = _{ crossed_inverted | inverted | crossed | natural }
+
+zip_position_raw = { position }
+zip_position = _{ zip_position_raw ~ "z" }
+zip_positions = _{ zip_position* }
+
+shortnotation = { zip_positions ~ position ~ base }
+
+positioned_digit = { position? ~ ASCII_HEX_DIGIT }
+ss = _{ positioned_digit+ }
+fullnotation = { zip_positions ~ "S" ~ ss }
+notation = _{ shortnotation | fullnotation }
