@@ -22,7 +22,8 @@ zip_positions = _{ (zip_position ~ "z")* }
 
 shortnotation = { zip_positions ~ position ~ base }
 
-positioned_digit = { position? ~ ASCII_HEX_DIGIT }
+digit = { ASCII_HEX_DIGIT }
+positioned_digit = { position? ~ digit}
 ss = _{ positioned_digit+ }
 fullnotation = { zip_positions ~ "S" ~ ss }
 notation = _{ shortnotation | fullnotation }
