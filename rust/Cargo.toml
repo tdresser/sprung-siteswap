@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "spring_siteswap"
+name = "sprung_siteswap"
 path = "src/bindings.rs"
 crate-type = ["cdylib", "rlib"]
 
