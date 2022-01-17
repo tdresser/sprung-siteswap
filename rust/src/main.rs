@@ -1,4 +1,6 @@
-use lib::parse;
+use crate::lib::parse::parse;
+
+mod lib;
 
 fn main() {
     /*let pattern = parse("czizTtzS312");
@@ -30,8 +32,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::parse;
-    use lib::Position;
+    use crate::lib::{data::Position, parse::parse};
 
     #[test]
     fn box_base() {
