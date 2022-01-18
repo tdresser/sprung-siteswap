@@ -1,5 +1,9 @@
-import {wasm_bindgen} from '../rust/pkg/sprung_siteswap_bg';
+import { default as wasmbin } from '../rust/pkg/sprung_siteswap_bg.wasm';
+import init, {get_canonical_form} from "../rust/pkg/sprung_siteswap";
 
-rust
-  .then(m => m.greet('World!'))
-  .catch(console.error);
+async function run() {
+	await init(wasmbin);
+    console.log(get_canonical_form("icziczcB"));
+}
+run();
+

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "ESNext",
+    "target": "ES6",
+    "allowJs": true,
+    "noImplicitAny": true,
+    "importHelpers": true,
+    "lib": [
+      "ESNext"
+    ]
+  },
+  "include": [
+    "*.ts",
+    "**/*.d.ts",
+    "rust/pkg/*.d.ts"
+  ]
+}
