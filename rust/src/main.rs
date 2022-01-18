@@ -1,4 +1,4 @@
-use crate::lib::parse::parse;
+use crate::lib::data::Pattern;
 
 mod lib;
 
@@ -7,7 +7,7 @@ fn main() {
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());*/
 
-    let mut pattern = parse("czizczizS312");
+    let mut pattern = Pattern::new("czizczizS312");
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());
 
@@ -32,57 +32,57 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::lib::{data::Position, parse::parse};
+    use crate::lib::{data::Pattern, data::Position};
 
     #[test]
     fn box_base() {
-        let pattern = parse("cB");
-        assert_eq!(pattern.siteswap, vec![2]);
+        let pattern = Pattern::new("cB");
+        assert_eq!(*pattern.siteswap(), vec![2]);
         assert_eq!(
-            pattern.nonzip_positions,
+            *pattern.nonzip_positions(),
             vec![(Position::BottomOpposite, Position::BottomOpposite)]
         );
     }
 
     #[test]
     fn cascade_base() {
-        let pattern = parse("iC");
-        assert_eq!(pattern.siteswap, vec![3]);
+        let pattern = Pattern::new("iC");
+        assert_eq!(*pattern.siteswap(), vec![3]);
         assert_eq!(
-            pattern.nonzip_positions,
+            *pattern.nonzip_positions(),
             vec![(Position::TopNatural, Position::TopNatural)]
         );
     }
 
     #[test]
     fn fountain_base() {
-        let pattern = parse("ciF");
-        assert_eq!(pattern.siteswap, vec![4]);
+        let pattern = Pattern::new("ciF");
+        assert_eq!(*pattern.siteswap(), vec![4]);
         assert_eq!(
-            pattern.nonzip_positions,
+            *pattern.nonzip_positions(),
             vec![(Position::TopOpposite, Position::TopOpposite)]
         );
     }
 
     #[test]
     fn sprung_base() {
-        let pattern = parse("iczS312");
-        assert_eq!(pattern.siteswap, vec![3, 1, 2]);
+        let pattern = Pattern::new("iczS312");
+        assert_eq!(*pattern.siteswap(), vec![3, 1, 2]);
         assert_eq!(
-            pattern.zip_positions,
+            *pattern.zip_positions(),
             vec![(Position::TopOpposite, Position::TopOpposite)]
         );
     }
 
     #[test]
     fn collapse_zipped() {
-        let mut pattern = parse("izicziziczB");
+        let mut pattern = Pattern::new("izicziziczB");
         assert_eq!(pattern.get_canonical_form(), "izcizS2");
     }
 
     #[test]
     fn collapse_siteswap_positions() {
-        let mut pattern = parse("Sc3c1n2");
+        let mut pattern = Pattern::new("Sc3c1n2");
         assert_eq!(pattern.get_canonical_form(), "Sc31n2");
     }
 }

@@ -23,9 +23,11 @@ fn print_pairs(pairs: &mut Pairs<Rule>) {
     println!("{}", r);
 }
 
-fn parse_positioned_digits(pattern: &mut Pattern, pairs: &mut Pairs<Rule>) {
-    let mut positions: Vec<(Position, Position)> = vec![];
-    let mut siteswap: Vec<u32> = vec![];
+fn parse_positioned_digits(
+    positions: &mut Vec<(Position, Position)>,
+    siteswap: &mut Vec<u32>,
+    pairs: &mut Pairs<Rule>,
+) {
     loop {
         match pairs.peek() {
             None => break,
@@ -55,8 +57,6 @@ fn parse_positioned_digits(pattern: &mut Pattern, pairs: &mut Pairs<Rule>) {
             }
         }
     }
-    pattern.siteswap = siteswap;
-    pattern.nonzip_positions = positions;
 }
 
 fn map_advanced_position(pair: Pair<Rule>) -> Position {
@@ -111,41 +111,47 @@ fn parse_zip_positions(pairs: &mut Pairs<Rule>) -> Vec<(Position, Position)> {
     return positions;
 }
 
-pub fn parse(s: &str) -> Pattern {
-    println!("{}", s);
-    let mut pattern = Pattern {
-        zip_positions: vec![],
-        nonzip_positions: vec![],
-        siteswap: vec![],
-    };
-    let mut pairs = SSParser::parse(Rule::notation, s).unwrap_or_else(|e| panic!("{}", e));
-    let top = pairs.next().unwrap();
-    assert!(pairs.next() == None);
+impl Pattern {
+    pub(super) fn parse(s: &str) -> Pattern {
+        println!("{}", s);
+        let mut zip_positions = vec![];
+        let mut nonzip_positions = vec![];
+        let mut siteswap = vec![];
 
-    if top.as_rule() == Rule::shortnotation {
-        let mut inner = top.into_inner();
-        println!("Short");
-        pattern.zip_positions = parse_zip_positions(&mut inner);
+        let mut pairs = SSParser::parse(Rule::notation, s).unwrap_or_else(|e| panic!("{}", e));
+        let top = pairs.next().unwrap();
+        assert!(pairs.next() == None);
 
-        // Next up is an optional position.
-        let next = inner.peek().unwrap();
-        if next.as_rule() == Rule::position {
-            inner.next();
-            pattern.nonzip_positions = vec![parse_position(next.into_inner().next().unwrap())];
-        } else {
-            pattern.nonzip_positions = vec![(Position::BottomNatural, Position::BottomNatural)];
+        if top.as_rule() == Rule::shortnotation {
+            let mut inner = top.into_inner();
+            println!("Short");
+            zip_positions = parse_zip_positions(&mut inner);
+
+            // Next up is an optional position.
+            let next = inner.peek().unwrap();
+            if next.as_rule() == Rule::position {
+                inner.next();
+                nonzip_positions = vec![parse_position(next.into_inner().next().unwrap())];
+            } else {
+                nonzip_positions = vec![(Position::BottomNatural, Position::BottomNatural)];
+            }
+            siteswap = match inner.next().unwrap().as_rule() {
+                Rule::B => vec![2u32],
+                Rule::C => vec![3u32],
+                Rule::F => vec![4u32],
+                _ => unreachable!(),
+            };
+        } else if top.as_rule() == Rule::fullnotation {
+            let mut inner = top.into_inner();
+            zip_positions = parse_zip_positions(&mut inner);
+            parse_positioned_digits(&mut nonzip_positions, &mut siteswap, &mut inner);
         }
-        pattern.siteswap = match inner.next().unwrap().as_rule() {
-            Rule::B => vec![2u32],
-            Rule::C => vec![3u32],
-            Rule::F => vec![4u32],
-            _ => unreachable!(),
-        };
-    } else if top.as_rule() == Rule::fullnotation {
-        let mut inner = top.into_inner();
-        pattern.zip_positions = parse_zip_positions(&mut inner);
-        parse_positioned_digits(&mut pattern, &mut inner);
-    }
 
-    return pattern;
+        return Pattern {
+            zip_positions,
+            nonzip_positions,
+            siteswap,
+            error: None,
+        };
+    }
 }
