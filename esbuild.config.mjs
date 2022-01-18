@@ -18,7 +18,7 @@ esbuild
     entryPoints: ["src/main.ts"],
     bundle: true,
     format: "esm",
-    watch: true,
+    watch: !prod,
     target: "esnext",
     logLevel: "info",
     sourcemap: prod ? false : "inline",
