@@ -4,8 +4,8 @@ use pest::{
 };
 use pest_derive::Parser;
 
-use crate::lib::data::Pattern;
 use crate::lib::data::Position;
+use crate::lib::{data::Pattern, validate_siteswap::validate_siteswap};
 
 #[derive(Parser)]
 #[grammar = "normalize.pest"]
@@ -147,11 +147,25 @@ impl Pattern {
             parse_positioned_digits(&mut nonzip_positions, &mut siteswap, &mut inner);
         }
 
-        return Pattern {
-            zip_positions,
-            nonzip_positions,
-            siteswap,
-            error: None,
-        };
+        match validate_siteswap(&siteswap) {
+            Err(message) => {
+                return {
+                    Pattern {
+                        zip_positions: vec![],
+                        nonzip_positions: vec![],
+                        siteswap: vec![],
+                        error: Some(message),
+                    }
+                }
+            }
+            Ok(()) => {
+                return Pattern {
+                    zip_positions,
+                    nonzip_positions,
+                    siteswap,
+                    error: None,
+                };
+            }
+        }
     }
 }

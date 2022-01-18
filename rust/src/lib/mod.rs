@@ -1,3 +1,4 @@
 pub mod canonical;
 pub mod data;
-pub mod parse;
+mod parse;
+mod validate_siteswap;

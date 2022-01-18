@@ -85,4 +85,10 @@ mod tests {
         let mut pattern = Pattern::new("Sc3c1n2");
         assert_eq!(pattern.get_canonical_form(), "Sc31n2");
     }
+
+    #[test]
+    fn invalid_siteswap() {
+        let pattern = Pattern::new("S321");
+        assert_eq!(*pattern.error(), Some("Invalid siteswap.".to_string()));
+    }
 }
