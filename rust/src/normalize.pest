@@ -26,4 +26,4 @@ digit = { ASCII_HEX_DIGIT }
 positioned_digit = { position? ~ digit}
 ss = _{ positioned_digit+ }
 fullnotation = { zip_positions ~ "S" ~ ss }
-notation = _{ shortnotation | fullnotation }
+notation = _{SOI ~ (shortnotation | fullnotation) ~ EOI }

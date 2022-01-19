@@ -120,7 +120,7 @@ impl Pattern {
 
         let mut pairs = SSParser::parse(Rule::notation, s).unwrap_or_else(|e| panic!("{}", e));
         let top = pairs.next().unwrap();
-        assert!(pairs.next() == None);
+        assert!(pairs.next().unwrap().as_rule() == Rule::EOI);
 
         if top.as_rule() == Rule::shortnotation {
             let mut inner = top.into_inner();
