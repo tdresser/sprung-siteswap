@@ -1,6 +1,7 @@
 use super::data::Pattern;
 
 impl Pattern {
+    #[allow(dead_code)]
     pub fn get_traditional_siteswap(&self) -> String {
         let mut result = String::new();
         for (i, digit) in self.siteswap.iter().enumerate() {

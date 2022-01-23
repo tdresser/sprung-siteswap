@@ -1,8 +1,3 @@
-B = {"B"}
-C = {"C"}
-F = {"F"}
-base = _{ B | C | F }
-
 crossed_inverted = { "ci" | "ic" }
 inverted = {"i"}
 crossed = {"c"}
@@ -16,14 +11,28 @@ position_pair_item = _{ bottom_natural | bottom_opposite | top_natural | top_opp
 position_pair = { position_pair_item ~ position_pair_item }
 
 position = { crossed_inverted | inverted | crossed | natural | position_pair }
-zip_position = { crossed_inverted | inverted | crossed | natural | position_pair }
 
-zip_positions = _{ (zip_position ~ "z")* }
+zip_position = { position }
+arc_position = { position }
+infix_arc_position = { position }
 
-shortnotation = { zip_positions ~ position? ~ base }
+digit = { '0'..'9' }
+C = {"C"}
+F = {"F"}
+B = {"B"}
 
-digit = { ASCII_HEX_DIGIT }
-positioned_digit = { position? ~ digit}
-ss = _{ positioned_digit+ }
-fullnotation = { zip_positions ~ "S" ~ ss }
-notation = _{SOI ~ (shortnotation | fullnotation) ~ EOI }
+ambiguous_position = { crossed | inverted | crossed_inverted }
+
+notation = { 
+    SOI ~ (
+    ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ "S" ~ ( // explicit arcs
+        digit+ | C | F)) | 
+    ((zip_position ~ "z")* ~ "S" ~ ( // infix arcs
+        (infix_arc_position? ~ digit)+ | 
+        (infix_arc_position? ~ (C | F)))) |
+    (ambiguous_position ~ "S" ~ (// ambiguous arcs
+        digit+ | C | F)) |
+    ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ B) | // explicit arcs (box)
+    (ambiguous_position ~ B)// ambiguous arcs (box)
+    ) ~ EOI
+}

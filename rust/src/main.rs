@@ -39,27 +39,27 @@ mod tests {
         let pattern = Pattern::new("cB");
         assert_eq!(*pattern.siteswap(), vec![2]);
         assert_eq!(
-            *pattern.nonzip_positions(),
+            *pattern.arc_positions(),
             vec![(Position::BottomOpposite, Position::BottomOpposite)]
         );
     }
 
     #[test]
     fn cascade_base() {
-        let pattern = Pattern::new("iC");
+        let pattern = Pattern::new("iSC");
         assert_eq!(*pattern.siteswap(), vec![3]);
         assert_eq!(
-            *pattern.nonzip_positions(),
+            *pattern.arc_positions(),
             vec![(Position::TopNatural, Position::TopNatural)]
         );
     }
 
     #[test]
     fn fountain_base() {
-        let pattern = Pattern::new("ciF");
+        let pattern = Pattern::new("ciSF");
         assert_eq!(*pattern.siteswap(), vec![4]);
         assert_eq!(
-            *pattern.nonzip_positions(),
+            *pattern.arc_positions(),
             vec![(Position::TopOpposite, Position::TopOpposite)]
         );
     }

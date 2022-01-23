@@ -1,5 +1,6 @@
 use super::data::Pattern;
 use super::data::Position;
+use super::data::Positions;
 
 fn get_advanced_position_str(a: &Position) -> &str {
     return match a {
@@ -21,7 +22,7 @@ fn get_position_str((a, b): &(Position, Position)) -> String {
 }
 
 // Collapses repetition. e.g., cici -> ci.
-fn collapse_positions(positions: &Vec<(Position, Position)>) -> Vec<(Position, Position)> {
+fn collapse_positions(positions: &Positions) -> Positions {
     if positions.len() == 0 {
         return vec![];
     }
@@ -55,11 +56,11 @@ impl Pattern {
             result = format!("{}{}z", result, get_position_str(zip_position));
         }
         result += "S";
-        assert!(self.nonzip_positions.len() == self.siteswap.len());
+        assert!(self.arc_positions.len() == self.siteswap.len());
 
         let mut current_position = "n".to_string();
-        for i in 0..self.nonzip_positions.len() {
-            let new_position = get_position_str(&self.nonzip_positions[i]);
+        for i in 0..self.arc_positions.len() {
+            let new_position = get_position_str(&self.arc_positions[i]);
             let digit = char::from_digit(self.siteswap[i], 16).unwrap();
             if current_position == new_position {
                 result = format!("{}{}", result, digit,);

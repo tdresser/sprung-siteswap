@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub struct Pattern {
-    pub(super) zip_positions: Vec<(Position, Position)>,
-    pub(super) nonzip_positions: Vec<(Position, Position)>,
+    pub(super) zip_positions: Positions,
+    pub(super) arc_positions: Positions,
     pub(super) siteswap: Vec<u32>,
     pub(super) error: Option<String>,
 }
@@ -11,18 +11,22 @@ impl Pattern {
         return Pattern::parse(s);
     }
 
-    pub fn zip_positions(&self) -> &Vec<(Position, Position)> {
+    #[allow(dead_code)]
+    pub fn zip_positions(&self) -> &Positions {
         return &self.zip_positions;
     }
 
-    pub fn nonzip_positions(&self) -> &Vec<(Position, Position)> {
-        return &self.nonzip_positions;
+    #[allow(dead_code)]
+    pub fn arc_positions(&self) -> &Positions {
+        return &self.arc_positions;
     }
 
+    #[allow(dead_code)]
     pub fn siteswap(&self) -> &Vec<u32> {
         return &self.siteswap;
     }
 
+    #[allow(dead_code)]
     pub fn error(&self) -> &Option<String> {
         return &self.error;
     }
@@ -35,3 +39,5 @@ pub enum Position {
     TopNatural,
     TopOpposite,
 }
+
+pub type Positions = Vec<(Position, Position)>;
