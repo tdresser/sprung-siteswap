@@ -10,7 +10,7 @@ top_opposite = { "t" }
 position_pair_item = _{ bottom_natural | bottom_opposite | top_natural | top_opposite }
 position_pair = { position_pair_item ~ position_pair_item }
 
-position = { crossed_inverted | inverted | crossed | natural | position_pair }
+position = _{ crossed_inverted | inverted | crossed | natural | position_pair }
 
 zip_position = { position }
 arc_position = { position }

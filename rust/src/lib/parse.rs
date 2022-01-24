@@ -76,48 +76,29 @@ fn map_advanced_position(pair: Pair<Rule>) -> Position {
     };
 }
 
-fn parse_position(pair: Pair<Rule>) -> (Position, Position) {
-    return match pair.as_rule() {
-        Rule::crossed => (Position::BottomOpposite, Position::BottomOpposite),
-        Rule::inverted => (Position::TopNatural, Position::TopNatural),
-        Rule::crossed_inverted => (Position::TopOpposite, Position::TopOpposite),
-        Rule::natural => (Position::BottomNatural, Position::BottomNatural),
-        Rule::position_pair => {
-            let mut positions = pair.into_inner();
-            let p1 = positions.next().unwrap();
-            let p2 = positions.next().unwrap();
-            assert!(positions.next() == None);
-            return (map_advanced_position(p1), map_advanced_position(p2));
-        }
-        _ => unreachable!(),
+fn parse_position(pairs: &mut Pairs<Rule>, into: &mut Positions, error: &mut Option<String>) {
+    let position = pairs.next();
+    match position {
+        None => unreachable!(),
+        Some(pos) => match pos.as_rule() {
+            Rule::crossed => into.push((Position::BottomOpposite, Position::BottomOpposite)),
+            Rule::inverted => into.push((Position::TopNatural, Position::TopNatural)),
+            Rule::crossed_inverted => into.push((Position::TopOpposite, Position::TopOpposite)),
+            Rule::natural => into.push((Position::BottomNatural, Position::BottomNatural)),
+            Rule::position_pair => {
+                let mut positions = pos.into_inner();
+                let p1 = positions.next().unwrap();
+                let p2 = positions.next().unwrap();
+                assert!(positions.next() == None);
+                into.push((map_advanced_position(p1), map_advanced_position(p2)));
+            }
+            _ => {
+                *error = Some(format!("Invalid position {}", pairs));
+                unreachable!("Invalid position {} {}", pairs, pos);
+            }
+        },
     };
 }
-
-/*fn parse_zip_positions(pairs: &mut Pairs<Rule>) -> Positions {
-    let mut positions: Positions = vec![];
-    println!("ZP: {}", pairs);
-    loop {
-        match pairs.peek() {
-            // Zip positions are never last.
-            None => unreachable!(),
-            Some(pair) => {
-                if pair.as_rule() == Rule::zip_position {
-                    pairs.next();
-                    let mut inner = pair.into_inner();
-                    let position = inner.next();
-                    match position {
-                        None => unreachable!(),
-                        Some(pos) => positions.push(parse_position(pos)),
-                    }
-                    assert!(inner.next() == None);
-                } else {
-                    break;
-                }
-            }
-        }
-    }
-    return positions;
-}*/
 
 /*fn parse_ambiguous_position(
     pairs: &mut Pairs<Rule>,
@@ -135,16 +116,31 @@ fn parse_position(pair: Pair<Rule>) -> (Position, Position) {
 }*/
 
 fn parse_token(
-    pair: &Pair<Rule>,
+    rule: Rule,
+    inner: &mut Pairs<Rule>,
     parse_state: &mut ParseState,
-    zip_positions: &[(Position, Position)],
-    arc_positions: &[(Position, Position)],
+    zip_positions: &mut Positions,
+    arc_positions: &mut Positions,
     siteswap: &[u32],
+    error: &mut Option<String>,
 ) {
-    match pair.as_rule() {
-        Rule::zip_position => println!("ZP"),
-        Rule::arc_position => println!("AP"),
-        Rule::ambiguous_position => println!(),
+    match rule {
+        Rule::zip_position => parse_position(inner, zip_positions, error),
+        Rule::arc_position => parse_position(inner, arc_positions, error),
+        Rule::ambiguous_position => println!("AB"),
+        Rule::digit => println!("Digit"),
+        Rule::EOI => {
+            return;
+        }
+        _ => {
+            *error = Some(format!("Invalid token: "));
+        }
+    };
+    match error {
+        Some(message) => {
+            *error = Some(format!("{} {}", message, inner));
+        }
+        None => (),
     }
 }
 
@@ -157,17 +153,29 @@ impl Pattern {
         let mut zip_positions = vec![];
         let mut arc_positions = vec![];
         let mut siteswap = vec![];
+        let mut error: Option<String> = None;
 
         let mut pairs = SSParser::parse(Rule::notation, s).unwrap_or_else(|e| panic!("{}", e));
+        let inner = pairs.next().unwrap().into_inner();
         println!("{}", pairs);
-        for token in pairs.next().unwrap().into_inner() {
+        for token in inner {
             parse_token(
-                &token,
+                token.as_rule(),
+                &mut token.into_inner(),
                 &mut parse_state,
                 &mut zip_positions,
                 &mut arc_positions,
                 &mut siteswap,
+                &mut error,
             );
+
+            match error {
+                None => (),
+                Some(ref message) => {
+                    println!("ERROR! {}", message);
+                    break;
+                }
+            }
         }
         /*let top = pairs.next().unwrap();
         assert!(pairs.next().unwrap().as_rule() == Rule::EOI);

@@ -1,8 +1,8 @@
 # TODO
-- [ ] Validate siteswap.
+- [x] Validate siteswap.
 - [ ] Convert to jugglinglab notation.
 - [ ] Remove unnecessary cycles in siteswap and nonzip_positions.
-- [ ] Rename nonzip_positions.
+- [x] Rename nonzip_positions.
 - [ ] Canonize siteswap.
 
 # Notation thoughts
