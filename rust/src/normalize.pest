@@ -16,7 +16,7 @@ zip_position = { position }
 arc_position = { position }
 infix_arc_position = { position }
 
-digit = { '0'..'9' }
+digit = { '0'..'9' } // Looks like this needs an extra wrapper? Gross.
 C = {"C"}
 F = {"F"}
 B = {"B"}

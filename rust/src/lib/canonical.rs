@@ -56,7 +56,6 @@ impl Pattern {
             result = format!("{}{}z", result, get_position_str(zip_position));
         }
         result += "S";
-        assert!(self.arc_positions.len() == self.siteswap.len());
 
         let mut current_position = "n".to_string();
         for i in 0..self.arc_positions.len() {

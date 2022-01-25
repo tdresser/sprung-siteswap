@@ -115,20 +115,27 @@ fn parse_position(pairs: &mut Pairs<Rule>, into: &mut Positions, error: &mut Opt
     }
 }*/
 
+fn parse_digit(token: Pair<Rule>, siteswap: &mut Vec<u32>, error: &mut Option<String>) {
+    let s = token.as_str();
+    assert!(s.len() == 1, "{}", s);
+    let c = s.chars().nth(0).unwrap();
+    siteswap.push(c.to_digit(10).unwrap());
+}
+
 fn parse_token(
-    rule: Rule,
-    inner: &mut Pairs<Rule>,
+    token: Pair<Rule>,
     parse_state: &mut ParseState,
     zip_positions: &mut Positions,
     arc_positions: &mut Positions,
-    siteswap: &[u32],
+    siteswap: &mut Vec<u32>,
     error: &mut Option<String>,
 ) {
-    match rule {
-        Rule::zip_position => parse_position(inner, zip_positions, error),
-        Rule::arc_position => parse_position(inner, arc_positions, error),
+    let str = token.as_str();
+    match token.as_rule() {
+        Rule::zip_position => parse_position(&mut token.into_inner(), zip_positions, error),
+        Rule::arc_position => parse_position(&mut token.into_inner(), arc_positions, error),
         Rule::ambiguous_position => println!("AB"),
-        Rule::digit => println!("Digit"),
+        Rule::digit => parse_digit(token, siteswap, error),
         Rule::EOI => {
             return;
         }
@@ -138,7 +145,7 @@ fn parse_token(
     };
     match error {
         Some(message) => {
-            *error = Some(format!("{} {}", message, inner));
+            *error = Some(format!("{} {}", message, str));
         }
         None => (),
     }
@@ -160,8 +167,7 @@ impl Pattern {
         println!("{}", pairs);
         for token in inner {
             parse_token(
-                token.as_rule(),
-                &mut token.into_inner(),
+                token,
                 &mut parse_state,
                 &mut zip_positions,
                 &mut arc_positions,
