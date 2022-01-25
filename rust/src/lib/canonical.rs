@@ -1,3 +1,5 @@
+use num;
+
 use super::data::Pattern;
 use super::data::Position;
 use super::data::Positions;
@@ -23,9 +25,6 @@ fn get_position_str((a, b): &(Position, Position)) -> String {
 
 // Collapses repetition. e.g., cici -> ci.
 fn collapse_positions(positions: &Positions) -> Positions {
-    if positions.len() == 0 {
-        return vec![];
-    }
     for n in (1..positions.len() + 1).rev() {
         println!("N {}", n);
         // Can we divide |positions| into chunks of length n?
@@ -46,27 +45,40 @@ fn collapse_positions(positions: &Positions) -> Positions {
 
 impl Pattern {
     fn normalize(&mut self) {
+        if self.zip_positions.len() == 0 {
+            self.zip_positions
+                .push((Position::BottomNatural, Position::BottomNatural));
+        }
+        if self.arc_positions.len() == 0 {
+            self.arc_positions
+                .push((Position::BottomNatural, Position::BottomNatural));
+        }
         self.zip_positions = collapse_positions(&self.zip_positions);
     }
 
     pub fn get_canonical_form(&mut self) -> String {
         self.normalize();
         let mut result = "".to_string();
-        for zip_position in &self.zip_positions {
-            result = format!("{}{}z", result, get_position_str(zip_position));
+        if self.zip_positions != vec![(Position::BottomNatural, Position::BottomNatural)] {
+            for zip_position in &self.zip_positions {
+                result = format!("{}{}z", result, get_position_str(zip_position));
+            }
         }
         result += "S";
 
-        let mut current_position = "n".to_string();
-        for i in 0..self.arc_positions.len() {
-            let new_position = get_position_str(&self.arc_positions[i]);
-            let digit = char::from_digit(self.siteswap[i], 16).unwrap();
-            if current_position == new_position {
+        let len = num::integer::lcm(self.arc_positions.len(), self.siteswap.len());
+        let mut current_arc_position = "n".to_string();
+        let mut siteswap_iter = self.siteswap.iter().cycle();
+        let mut arc_position_iter = self.arc_positions.iter().cycle();
+        for _ in 0..len {
+            let new_position = get_position_str(arc_position_iter.next().unwrap());
+            let digit = char::from_digit(*siteswap_iter.next().unwrap(), 16).unwrap();
+            if current_arc_position == new_position {
                 result = format!("{}{}", result, digit,);
             } else {
                 result = format!("{}{}{}", result, new_position, digit,);
             }
-            current_position = new_position;
+            current_arc_position = new_position;
         }
 
         return result;
