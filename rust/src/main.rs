@@ -40,13 +40,17 @@ mod tests {
 
     #[test]
     fn fountain_base() {
-        let mut pattern = Pattern::new("ciSF");
+        let mut pattern = Pattern::new("izcaSF");
         assert_eq!(*pattern.siteswap(), vec![4]);
         assert_eq!(
-            *pattern.arc_positions(),
-            vec![(Position::TopOpposite, Position::TopOpposite)]
+            *pattern.zip_positions(),
+            vec![(Position::TopNatural, Position::TopNatural)]
         );
-        assert_eq!(pattern.get_canonical_form(), "izScF");
+        assert_eq!(
+            *pattern.arc_positions(),
+            vec![(Position::BottomOpposite, Position::BottomOpposite)]
+        );
+        assert_eq!(pattern.get_canonical_form(), "izSc4");
     }
 
     #[test]
