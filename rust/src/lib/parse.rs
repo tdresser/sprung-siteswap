@@ -100,20 +100,22 @@ fn parse_position(pairs: &mut Pairs<Rule>, into: &mut Positions, error: &mut Opt
     };
 }
 
-/*fn parse_ambiguous_position(
-    pairs: &mut Pairs<Rule>,
-    zip_positions: &mut Positions,
-    arc_postions: &mut Positions,
+fn parse_ambiguous_position(
+    inner: &mut Pairs<Rule>,
+    zip_positions: &mut Vec<(Position, Position)>,
+    arc_positions: &mut Vec<(Position, Position)>,
+    error: &mut Option<String>,
 ) {
-    println!("{}", pairs);
-    assert!(pairs.peek().unwrap().as_rule() == Rule::ambiguous_position);
-    let inner = pairs.next().unwrap();
-    match inner.as_rule() {
-        Rule::inverted => ,
-        Rule::crossed => ,
-        Rule::crossed_inverted,
+    match inner.next().unwrap().as_rule() {
+        Rule::inverted => zip_positions.push((Position::TopNatural, Position::TopNatural)),
+        Rule::crossed => arc_positions.push((Position::BottomOpposite, Position::BottomOpposite)),
+        Rule::crossed_inverted => {
+            zip_positions.push((Position::TopNatural, Position::TopNatural));
+            arc_positions.push((Position::BottomOpposite, Position::BottomOpposite));
+        }
+        _ => *error = Some("Failure to parse ambiguous position".to_string()),
     }
-}*/
+}
 
 fn parse_digit(token: Pair<Rule>, siteswap: &mut Vec<u32>, error: &mut Option<String>) {
     let s = token.as_str();
@@ -134,8 +136,13 @@ fn parse_token(
     match token.as_rule() {
         Rule::zip_position => parse_position(&mut token.into_inner(), zip_positions, error),
         Rule::arc_position => parse_position(&mut token.into_inner(), arc_positions, error),
-        Rule::ambiguous_position => println!("AB"),
+        Rule::ambiguous_position => {
+            parse_ambiguous_position(&mut token.into_inner(), zip_positions, arc_positions, error)
+        }
         Rule::digit => parse_digit(token, siteswap, error),
+        Rule::B => siteswap.push(2u32),
+        Rule::C => siteswap.push(3u32),
+        Rule::F => siteswap.push(4u32),
         Rule::EOI => {
             return;
         }
@@ -183,29 +190,6 @@ impl Pattern {
                 }
             }
         }
-        /*let top = pairs.next().unwrap();
-        assert!(pairs.next().unwrap().as_rule() == Rule::EOI);
-
-        if top.as_rule() == Rule::boxnotation {
-            let mut inner = top.into_inner();
-            println!("Box");
-            zip_positions = parse_zip_positions(&mut inner);
-
-            // Next up is an optional position.
-            let next = inner.peek().unwrap();
-            if next.as_rule() == Rule::position {
-                inner.next();
-                arc_positions = vec![parse_position(next.into_inner().next().unwrap())];
-            } else {
-                arc_positions = vec![(Position::BottomNatural, Position::BottomNatural)];
-            }
-            siteswap = vec![2u32];
-        } else if top.as_rule() == Rule::fullnotation {
-            let mut inner = top.into_inner();
-            zip_positions = parse_zip_positions(&mut inner);
-            parse_ambiguous_position(&mut inner, &mut zip_positions, &mut arc_positions);
-            parse_positioned_digits(&mut arc_positions, &mut siteswap, &mut inner);
-        }
 
         match validate_siteswap(&siteswap) {
             Err(message) => {
@@ -218,14 +202,14 @@ impl Pattern {
                     }
                 }
             }
-            Ok(()) => {*/
-        return Pattern {
-            zip_positions,
-            arc_positions,
-            siteswap,
-            error: None,
-            /*};
-            }*/
-        };
+            Ok(()) => {
+                return Pattern {
+                    zip_positions,
+                    arc_positions,
+                    siteswap,
+                    error: None,
+                };
+            }
+        }
     }
 }

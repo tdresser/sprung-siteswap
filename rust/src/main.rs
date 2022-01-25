@@ -10,24 +10,6 @@ fn main() {
     let mut pattern = Pattern::new("czizczizS312");
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());
-
-    /*pattern = parse("cB");
-    println!("{:?}\n", pattern);
-
-    pattern = parse("izcB");
-    println!("{:?}\n", pattern);
-
-    pattern = parse("czSc3ci1n2");
-    println!("{:?}\n", pattern);
-
-    pattern = parse("izczSc3ci1n2");
-    println!("{:?}\n", pattern);
-
-    pattern = parse("bbzSTb3c1ic2");
-    println!("{:?}\n", pattern);
-
-    pattern = parse("TbzBbB");
-    println!("{:?}\n", pattern);*/
 }
 
 #[cfg(test)]
@@ -36,32 +18,35 @@ mod tests {
 
     #[test]
     fn box_base() {
-        let pattern = Pattern::new("cB");
+        let mut pattern = Pattern::new("cB");
         assert_eq!(*pattern.siteswap(), vec![2]);
         assert_eq!(
             *pattern.arc_positions(),
             vec![(Position::BottomOpposite, Position::BottomOpposite)]
         );
+        assert_eq!(pattern.get_canonical_form(), "Sc2");
     }
 
     #[test]
     fn cascade_base() {
-        let pattern = Pattern::new("iSC");
+        let mut pattern = Pattern::new("iSC");
         assert_eq!(*pattern.siteswap(), vec![3]);
         assert_eq!(
-            *pattern.arc_positions(),
+            *pattern.zip_positions(),
             vec![(Position::TopNatural, Position::TopNatural)]
         );
+        assert_eq!(pattern.get_canonical_form(), "izS3");
     }
 
     #[test]
     fn fountain_base() {
-        let pattern = Pattern::new("ciSF");
+        let mut pattern = Pattern::new("ciSF");
         assert_eq!(*pattern.siteswap(), vec![4]);
         assert_eq!(
             *pattern.arc_positions(),
             vec![(Position::TopOpposite, Position::TopOpposite)]
         );
+        assert_eq!(pattern.get_canonical_form(), "izScF");
     }
 
     #[test]
