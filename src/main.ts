@@ -7,7 +7,7 @@ async function run() {
     const canonical = document.getElementById("canonical");
     const siteswap = document.getElementById("siteswap");
 
-    input.value = "icziczcB";
+    input.value = "icziczcaB";
 
     function updateOutput() {
         try {
