@@ -17,6 +17,29 @@ mod tests {
     use crate::lib::{data::Pattern, data::Position};
 
     #[test]
+    fn bare() {
+        assert_eq!(Pattern::new("B").get_canonical_form(), "S2");
+        assert_eq!(Pattern::new("SC").get_canonical_form(), "S3");
+        assert_eq!(Pattern::new("SF").get_canonical_form(), "S4");
+        assert_eq!(Pattern::new("S5").get_canonical_form(), "S5");
+    }
+
+    #[test]
+    fn parse_failure() {
+        let pattern = Pattern::new("C");
+        // TODO, maybe try to clean this up?
+        assert_eq!(
+            *pattern.error(),
+            Some(" --> 1:1\n  |\n1 | C\n  | ^---\n  |\n  = expected notation".to_string())
+        );
+    }
+
+    #[test]
+    fn explicit_arcs() {
+        assert_eq!(Pattern::new("caciaB").get_canonical_form(), "Sc2ci2");
+    }
+
+    #[test]
     fn box_base() {
         let mut pattern = Pattern::new("cB");
         assert_eq!(*pattern.siteswap(), vec![2]);

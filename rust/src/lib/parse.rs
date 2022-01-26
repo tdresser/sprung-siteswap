@@ -125,6 +125,15 @@ fn parse_token(
     }
 }
 
+fn error_pattern(message: String) -> Pattern {
+    Pattern {
+        zip_positions: vec![],
+        arc_positions: vec![],
+        siteswap: vec![],
+        error: Some(message),
+    }
+}
+
 impl Pattern {
     pub(super) fn parse(s: &str) -> Pattern {
         println!("{}", s);
@@ -136,7 +145,12 @@ impl Pattern {
         let mut siteswap = vec![];
         let mut error: Option<String> = None;
 
-        let mut pairs = SSParser::parse(Rule::notation, s).unwrap_or_else(|e| panic!("{}", e));
+        let parse_result = SSParser::parse(Rule::notation, s);
+        if let Err(e) = parse_result {
+            println!("ERROR! {}", e.to_string());
+            return error_pattern(e.to_string());
+        }
+        let mut pairs = parse_result.unwrap();
         let inner = pairs.next().unwrap().into_inner();
         println!("{}", pairs);
         for token in inner {
@@ -160,14 +174,7 @@ impl Pattern {
 
         match validate_siteswap(&siteswap) {
             Err(message) => {
-                return {
-                    Pattern {
-                        zip_positions: vec![],
-                        arc_positions: vec![],
-                        siteswap: vec![],
-                        error: Some(message),
-                    }
-                }
+                return error_pattern(message);
             }
             Ok(()) => {
                 return Pattern {
