@@ -162,7 +162,7 @@ async function run() {
   const input = document.getElementById("input");
   const canonical = document.getElementById("canonical");
   const siteswap = document.getElementById("siteswap");
-  input.value = "icziczcB";
+  input.value = "icziczcaB";
   function updateOutput() {
     try {
       canonical.textContent = get_canonical_form(input.value.trim());
