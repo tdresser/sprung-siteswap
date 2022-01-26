@@ -7,7 +7,7 @@ use pest_derive::Parser;
 use crate::lib::data::Position;
 use crate::lib::{data::Pattern, validate_siteswap::validate_siteswap};
 
-use super::data::Positions;
+use super::data::{Positions, DEFAULT_POSITION};
 
 #[derive(Parser)]
 #[grammar = "normalize.pest"]
@@ -28,43 +28,6 @@ fn print_pairs(pairs: &mut Pairs<Rule>) {
     println!("{}", s);
     println!("{}", r);
 }
-/*
-fn parse_positioned_digits(
-    positions: &mut Positions,
-    siteswap: &mut Vec<u32>,
-    pairs: &mut Pairs<Rule>,
-) {
-    loop {
-        match pairs.peek() {
-            None => break,
-            Some(pair) => {
-                match pair.as_rule() {
-                    Rule::position => {
-                        pairs.next();
-                        positions.push(parse_position(pair));
-                    }
-                    _ => positions.push((Position::BottomNatural, Position::BottomNatural)),
-                }
-                let digit_or_cf = pairs.next().unwrap();
-                match digit_or_cf.as_rule() {
-                    Rule::digit => {
-                        let s = digit_or_cf.as_str();
-                        assert!(s.len() == 1);
-                        let c = s.chars().nth(0).unwrap();
-                        siteswap.push(c.to_digit(10).unwrap());
-                    }
-                    Rule::C => siteswap.push(3u32),
-                    Rule::F => siteswap.push(4u32),
-                    _ => {
-                        println!("{}", digit_or_cf);
-                        unreachable!()
-                    }
-                }
-            }
-        }
-    }
-    assert!(pairs.next() == None);
-}*/
 
 fn map_advanced_position(pair: Pair<Rule>) -> Position {
     return match pair.as_rule() {
@@ -76,25 +39,25 @@ fn map_advanced_position(pair: Pair<Rule>) -> Position {
     };
 }
 
-fn parse_position(pairs: &mut Pairs<Rule>, into: &mut Positions, error: &mut Option<String>) {
+fn parse_position(pairs: &mut Pairs<Rule>, error: &mut Option<String>) -> (Position, Position) {
     let position = pairs.next();
     match position {
         None => unreachable!(),
         Some(pos) => match pos.as_rule() {
-            Rule::crossed => into.push((Position::BottomOpposite, Position::BottomOpposite)),
-            Rule::inverted => into.push((Position::TopNatural, Position::TopNatural)),
-            Rule::crossed_inverted => into.push((Position::TopOpposite, Position::TopOpposite)),
-            Rule::natural => into.push((Position::BottomNatural, Position::BottomNatural)),
+            Rule::crossed => return (Position::BottomOpposite, Position::BottomOpposite),
+            Rule::inverted => return (Position::TopNatural, Position::TopNatural),
+            Rule::crossed_inverted => return (Position::TopOpposite, Position::TopOpposite),
+            Rule::natural => return (Position::BottomNatural, Position::BottomNatural),
             Rule::position_pair => {
                 let mut positions = pos.into_inner();
                 let p1 = positions.next().unwrap();
                 let p2 = positions.next().unwrap();
                 assert!(positions.next() == None);
-                into.push((map_advanced_position(p1), map_advanced_position(p2)));
+                return (map_advanced_position(p1), map_advanced_position(p2));
             }
             _ => {
                 *error = Some(format!("Invalid position {}", pairs));
-                unreachable!("Invalid position {} {}", pairs, pos);
+                return DEFAULT_POSITION;
             }
         },
     };
@@ -117,7 +80,7 @@ fn parse_ambiguous_position(
     }
 }
 
-fn parse_digit(token: Pair<Rule>, siteswap: &mut Vec<u32>, error: &mut Option<String>) {
+fn parse_digit(token: Pair<Rule>, siteswap: &mut Vec<u32>, _error: &mut Option<String>) {
     let s = token.as_str();
     assert!(s.len() == 1, "{}", s);
     let c = s.chars().nth(0).unwrap();
@@ -134,11 +97,15 @@ fn parse_token(
 ) {
     let str = token.as_str();
     match token.as_rule() {
-        Rule::zip_position => parse_position(&mut token.into_inner(), zip_positions, error),
-        Rule::arc_position => parse_position(&mut token.into_inner(), arc_positions, error),
+        Rule::zip_position => zip_positions.push(parse_position(&mut token.into_inner(), error)),
+        Rule::arc_position => arc_positions.push(parse_position(&mut token.into_inner(), error)),
         Rule::ambiguous_position => {
             parse_ambiguous_position(&mut token.into_inner(), zip_positions, arc_positions, error)
         }
+        Rule::infix_arc_position => {
+            parse_state.current_infix_modifier = parse_position(&mut token.into_inner(), error);
+        }
+        Rule::push_infix => arc_positions.push(parse_state.current_infix_modifier.clone()),
         Rule::digit => parse_digit(token, siteswap, error),
         Rule::B => siteswap.push(2u32),
         Rule::C => siteswap.push(3u32),
@@ -162,7 +129,7 @@ impl Pattern {
     pub(super) fn parse(s: &str) -> Pattern {
         println!("{}", s);
         let mut parse_state = ParseState {
-            current_infix_modifier: (Position::BottomNatural, Position::BottomNatural),
+            current_infix_modifier: DEFAULT_POSITION,
         };
         let mut zip_positions = vec![];
         let mut arc_positions = vec![];

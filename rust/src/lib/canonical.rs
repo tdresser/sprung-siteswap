@@ -3,6 +3,7 @@ use num;
 use super::data::Pattern;
 use super::data::Position;
 use super::data::Positions;
+use super::data::DEFAULT_POSITION;
 
 fn get_advanced_position_str(a: &Position) -> &str {
     return match a {
@@ -46,12 +47,10 @@ fn collapse_positions(positions: &Positions) -> Positions {
 impl Pattern {
     fn normalize(&mut self) {
         if self.zip_positions.len() == 0 {
-            self.zip_positions
-                .push((Position::BottomNatural, Position::BottomNatural));
+            self.zip_positions.push(DEFAULT_POSITION);
         }
         if self.arc_positions.len() == 0 {
-            self.arc_positions
-                .push((Position::BottomNatural, Position::BottomNatural));
+            self.arc_positions.push(DEFAULT_POSITION);
         }
         self.zip_positions = collapse_positions(&self.zip_positions);
     }

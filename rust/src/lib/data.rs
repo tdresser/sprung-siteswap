@@ -41,3 +41,6 @@ pub enum Position {
 }
 
 pub type Positions = Vec<(Position, Position)>;
+
+pub const DEFAULT_POSITION: (Position, Position) =
+    (Position::BottomNatural, Position::BottomNatural);

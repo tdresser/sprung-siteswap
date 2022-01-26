@@ -23,16 +23,19 @@ B = {"B"}
 
 ambiguous_position = { crossed | inverted | crossed_inverted }
 
+infix_coming = { &ANY }
+push_infix = { &ANY }
+
 notation = { 
     SOI ~ (
     ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ "S" ~ ( // explicit arcs
         digit+ | C | F)) | 
     ((zip_position ~ "z")* ~ "S" ~ ( // infix arcs
-        (infix_arc_position? ~ digit)+ | 
-        (infix_arc_position? ~ (C | F)))) |
+        (infix_arc_position? ~ push_infix ~ digit)+ | 
+        (infix_arc_position? ~ push_infix ~ (C | F)))) |
     (ambiguous_position ~ "S" ~ (// ambiguous arcs
         digit+ | C | F)) |
     ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ B) | // explicit arcs (box)
-    (ambiguous_position ~ B)// ambiguous arcs (box)
+    (ambiguous_position ~ B) // ambiguous arcs (box)
     ) ~ EOI
 }
