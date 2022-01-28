@@ -124,4 +124,12 @@ mod tests {
             "(8,2x)(2x,4)(6x,2x)*"
         );
     }
+
+    #[test]
+    fn hex_siteswap() {
+        assert_eq!(
+            Pattern::new("S51").get_traditional_siteswap(),
+            "(ax,2x)(2x,2x)*"
+        );
+    }
 }
