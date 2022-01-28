@@ -116,4 +116,12 @@ mod tests {
         let pattern = Pattern::new("S321");
         assert_eq!(*pattern.error(), Some("Invalid siteswap.".to_string()));
     }
+
+    #[test]
+    fn traditional_siteswap() {
+        assert_eq!(
+            Pattern::new("S423").get_traditional_siteswap(),
+            "(8,2x)(2x,4)(6x,2x)*"
+        );
+    }
 }

@@ -20,6 +20,7 @@ async function run() {
             error.textContent = pattern.error;
             return;
         }
+        error.textContent = "";
         canonical.textContent = pattern.canonical;
         siteswap.textContent = pattern.siteswap;
         anim.src = pattern.juggle_anim_url;
