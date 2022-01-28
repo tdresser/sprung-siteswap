@@ -21,7 +21,7 @@ C = {"C"}
 F = {"F"}
 B = {"B"}
 
-ambiguous_position = { crossed | inverted | crossed_inverted }
+ambiguous_position = { crossed_inverted | crossed | inverted }
 
 infix_coming = { &ANY }
 push_infix = { &ANY }

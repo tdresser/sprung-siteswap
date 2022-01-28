@@ -25,6 +25,11 @@ mod tests {
     }
 
     #[test]
+    fn cib() {
+        assert_eq!(Pattern::new("ciB").get_canonical_form(), "izSc2");
+    }
+
+    #[test]
     fn parse_failure() {
         let pattern = Pattern::new("C");
         // TODO, maybe try to clean this up?
@@ -32,6 +37,14 @@ mod tests {
             *pattern.error(),
             Some(" --> 1:1\n  |\n1 | C\n  | ^---\n  |\n  = expected notation".to_string())
         );
+    }
+
+    #[test]
+    fn infix_arcs() {
+        assert!(Pattern::new("Bc").error().is_some());
+        assert_eq!(Pattern::new("ScC").get_canonical_form(), "Sc3");
+        assert_eq!(Pattern::new("ScF").get_canonical_form(), "Sc4");
+        assert_eq!(Pattern::new("Sc5i1").get_canonical_form(), "Sc5i1");
     }
 
     #[test]
