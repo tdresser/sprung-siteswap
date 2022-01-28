@@ -9,6 +9,7 @@ pub struct ParsedPattern {
     pub canonical: String,
     pub siteswap: String,
     pub juggle_anim_url: String,
+    pub hands: String,
     pub error: Option<String>,
 }
 
@@ -22,21 +23,26 @@ pub fn parse(s: String) -> ParsedPattern {
                 canonical: "".to_string(),
                 siteswap: "".to_string(),
                 juggle_anim_url: "".to_string(),
+                hands: "".to_string(),
                 error: Some(e.to_string()),
             }
         }
         None => {
             let siteswap = pattern.get_traditional_siteswap();
+            let hands = pattern.get_hand_positions();
             let url = format!(
-                "https://jugglinglab.org/anim?{}{}{}",
+                "https://jugglinglab.org/anim?{}{}{}{}{}",
                 "redirect=true;",
                 "pattern=",
-                encode(&siteswap)
+                encode(&siteswap),
+                ";hands=",
+                encode(&hands),
             );
             return ParsedPattern {
                 canonical: pattern.get_canonical_form(),
                 siteswap: siteswap,
                 juggle_anim_url: url,
+                hands: hands,
                 error: None,
             };
         }

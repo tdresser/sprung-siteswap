@@ -24,39 +24,8 @@ fn get_position_str((a, b): &(Position, Position)) -> String {
     };
 }
 
-// Collapses repetition. e.g., cici -> ci.
-fn collapse_positions(positions: &Positions) -> Positions {
-    for n in (1..positions.len() + 1).rev() {
-        println!("N {}", n);
-        // Can we divide |positions| into chunks of length n?
-        if positions.len() % n != 0 {
-            continue;
-        }
-        // Are all chunks equal?
-        let mut chunks = positions.chunks_exact(positions.len() / n);
-        let first = chunks.nth(0).unwrap();
-        if chunks.all(|x| x == first) {
-            // All chunks are equal, we're done.
-            return first.to_vec();
-        }
-    }
-    println!("{:?}", positions);
-    unreachable!();
-}
-
 impl Pattern {
-    fn normalize(&mut self) {
-        if self.zip_positions.len() == 0 {
-            self.zip_positions.push(DEFAULT_POSITION);
-        }
-        if self.arc_positions.len() == 0 {
-            self.arc_positions.push(DEFAULT_POSITION);
-        }
-        self.zip_positions = collapse_positions(&self.zip_positions);
-    }
-
     pub fn get_canonical_form(&mut self) -> String {
-        self.normalize();
         let mut result = "".to_string();
         if self.zip_positions != vec![(Position::BottomNatural, Position::BottomNatural)] {
             for zip_position in &self.zip_positions {

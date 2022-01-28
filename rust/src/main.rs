@@ -132,4 +132,12 @@ mod tests {
             "(ax,2x)(2x,2x)*"
         );
     }
+
+    #[test]
+    fn hand_positions() {
+        assert_eq!(
+            Pattern::new("iB").get_hand_positions(),
+            "(20)(20).(20,80)(20,80)."
+        );
+    }
 }

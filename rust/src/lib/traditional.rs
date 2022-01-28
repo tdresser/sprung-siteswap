@@ -1,5 +1,21 @@
 use super::data::Pattern;
 
+use super::data::Position;
+
+fn get_hand_position(p: &Position) -> String {
+    return match p {
+        Position::BottomNatural => "(20)",
+        Position::BottomOpposite => "(-20)",
+        Position::TopNatural => "(20,80)",
+        Position::TopOpposite => "(-20,80)",
+    }
+    .to_string();
+}
+
+fn get_hand_positions(a: &Position, b: &Position) -> String {
+    return format!("{}{}.", get_hand_position(a), get_hand_position(b));
+}
+
 impl Pattern {
     #[allow(dead_code)]
     pub fn get_traditional_siteswap(&self) -> String {
@@ -14,6 +30,29 @@ impl Pattern {
             }
         }
         result += "*";
+        return result;
+    }
+
+    pub fn get_hand_positions(&self) -> String {
+        let len = num::integer::lcm(self.arc_positions.len(), self.zip_positions.len());
+        let mut arc_iter = self.arc_positions.iter().cycle();
+        let mut zip_iter = self.zip_positions.iter().cycle();
+        let mut result = "".to_string();
+        println!("arc: {}", self.arc_positions().len());
+        println!("zip: {}", self.zip_positions().len());
+        println!("lcm: {}", len);
+        // Throws go [arc, zip, zip, arc, ...].
+        for i in 0..len {
+            let (arc_t, arc_c) = arc_iter.next().unwrap();
+            let (zip_t, zip_c) = zip_iter.next().unwrap();
+            let arc = get_hand_positions(arc_t, arc_c);
+            let zip = get_hand_positions(zip_t, zip_c);
+            if i % 2 == 0 {
+                result = format!("{}{}{}", result, arc, zip);
+            } else {
+                result = format!("{}{}{}", result, zip, arc);
+            }
+        }
         return result;
     }
 }

@@ -134,7 +134,37 @@ fn error_pattern(message: String) -> Pattern {
     }
 }
 
+// Collapses repetition. e.g., cici -> ci.
+fn collapse_positions(positions: &Positions) -> Positions {
+    for n in (1..positions.len() + 1).rev() {
+        println!("N {}", n);
+        // Can we divide |positions| into chunks of length n?
+        if positions.len() % n != 0 {
+            continue;
+        }
+        // Are all chunks equal?
+        let mut chunks = positions.chunks_exact(positions.len() / n);
+        let first = chunks.nth(0).unwrap();
+        if chunks.all(|x| x == first) {
+            // All chunks are equal, we're done.
+            return first.to_vec();
+        }
+    }
+    println!("{:?}", positions);
+    unreachable!();
+}
+
 impl Pattern {
+    fn normalize(&mut self) {
+        if self.zip_positions.len() == 0 {
+            self.zip_positions.push(DEFAULT_POSITION);
+        }
+        if self.arc_positions.len() == 0 {
+            self.arc_positions.push(DEFAULT_POSITION);
+        }
+        self.zip_positions = collapse_positions(&self.zip_positions);
+    }
+
     pub(super) fn parse(s: &str) -> Pattern {
         println!("{}", s);
         let mut parse_state = ParseState {
@@ -177,12 +207,14 @@ impl Pattern {
                 return error_pattern(message);
             }
             Ok(()) => {
-                return Pattern {
+                let mut pattern = Pattern {
                     zip_positions,
                     arc_positions,
                     siteswap,
                     error: None,
                 };
+                pattern.normalize();
+                return pattern;
             }
         }
     }

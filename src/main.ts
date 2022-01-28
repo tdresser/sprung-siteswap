@@ -6,6 +6,7 @@ async function run() {
     const input = document.getElementById("input") as HTMLInputElement;
     const canonical = document.getElementById("canonical");
     const siteswap = document.getElementById("siteswap");
+    const hands = document.getElementById("hands");
     const anim = document.getElementById("anim") as HTMLImageElement;
     const error = document.getElementById("error");
 
@@ -16,6 +17,7 @@ async function run() {
         if (pattern.error) {
             canonical.textContent = "";
             siteswap.textContent = "";
+            hands.textContent = "";
             anim.src = "";
             error.textContent = pattern.error;
             return;
@@ -23,6 +25,7 @@ async function run() {
         error.textContent = "";
         canonical.textContent = pattern.canonical;
         siteswap.textContent = pattern.siteswap;
+        hands.textContent = pattern.hands;
         anim.src = pattern.juggle_anim_url;
     }
 
