@@ -2,8 +2,6 @@ use num;
 
 use super::data::Pattern;
 use super::data::Position;
-use super::data::Positions;
-use super::data::DEFAULT_POSITION;
 
 fn get_advanced_position_str(a: &Position) -> &str {
     return match a {

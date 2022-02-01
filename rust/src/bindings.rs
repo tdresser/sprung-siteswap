@@ -30,14 +30,18 @@ pub fn parse(s: String) -> ParsedPattern {
         None => {
             let siteswap = pattern.get_traditional_siteswap();
             let hands = pattern.get_hand_positions();
+            let colors = pattern.get_colors();
             let url = format!(
-                "https://jugglinglab.org/anim?{}{}{}{}{}",
-                "redirect=true;",
+                "https://jugglinglab.org/anim?{}{}{}{}{}{}{}",
                 "pattern=",
                 encode(&siteswap),
                 ";hands=",
                 encode(&hands),
+                ";colors=",
+                encode(&colors),
+                ";bps=5;redirect=true"
             );
+            println!("{}", url);
             return ParsedPattern {
                 canonical: pattern.get_canonical_form(),
                 siteswap: siteswap,

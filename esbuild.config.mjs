@@ -2,6 +2,7 @@ import esbuild from "esbuild";
 import process from "process";
 import wasmpack from "esbuild-plugin-wasm-pack";
 import console from "console";
+import fs from "fs/promises"
 
 const prod = process.argv[2] === "production";
 
@@ -26,6 +27,7 @@ esbuild
     outdir: "build",
     loader: {
         ".wasm": "binary",
+        ".jar.js": "js",
     },
   })
   .catch((e) => {

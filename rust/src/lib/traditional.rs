@@ -6,8 +6,8 @@ fn get_hand_position(p: &Position) -> String {
     return match p {
         Position::BottomNatural => "(20)",
         Position::BottomOpposite => "(-20)",
-        Position::TopNatural => "(20,80)",
-        Position::TopOpposite => "(-20,80)",
+        Position::TopNatural => "(20,50)",
+        Position::TopOpposite => "(-20,50)",
     }
     .to_string();
 }
@@ -29,8 +29,23 @@ impl Pattern {
                 _ => unreachable!(),
             }
         }
-        result += "*";
+        if self.siteswap.len() % 2 == 1 {
+            result += "*";
+        }
         return result;
+    }
+
+    pub fn get_colors(&self) -> String {
+        let mut result = "".to_string();
+        for i in 0..self.num_balls() {
+            let color = if i == 0 { "red" } else { "green" };
+            result = format!("{}{{{}}}", result, color)
+        }
+        return result;
+    }
+
+    fn num_balls(&self) -> u32 {
+        return self.siteswap.iter().sum::<u32>() / (self.siteswap.len() as u32) + 1;
     }
 
     pub fn get_hand_positions(&self) -> String {
