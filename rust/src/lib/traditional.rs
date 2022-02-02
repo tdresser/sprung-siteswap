@@ -12,6 +12,7 @@ fn get_hand_position(p: &Position) -> String {
     .to_string();
 }
 
+#[allow(dead_code)]
 fn get_hand_positions(a: &Position, b: &Position) -> String {
     return format!("{}{}.", get_hand_position(a), get_hand_position(b));
 }
@@ -35,6 +36,7 @@ impl Pattern {
         return result;
     }
 
+    #[allow(dead_code)]
     pub fn get_colors(&self) -> String {
         let mut result = "".to_string();
         for i in 0..self.num_balls() {
@@ -48,6 +50,7 @@ impl Pattern {
         return self.siteswap.iter().sum::<u32>() / (self.siteswap.len() as u32) + 1;
     }
 
+    #[allow(dead_code)]
     pub fn get_hand_positions(&self) -> String {
         let len = num::integer::lcm(self.arc_positions.len(), self.zip_positions.len());
         let mut arc_iter = self.arc_positions.iter().cycle();

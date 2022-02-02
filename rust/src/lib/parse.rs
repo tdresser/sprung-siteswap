@@ -99,7 +99,7 @@ fn parse_token(
     match token.as_rule() {
         Rule::zip_position => zip_positions.push(parse_position(&mut token.into_inner(), error)),
         Rule::arc_position => arc_positions.push(parse_position(&mut token.into_inner(), error)),
-        Rule::ambiguous_position => {
+        Rule::ambiguous_arc | Rule::ambiguous_zip | Rule::ambiguous_arc_and_zip => {
             parse_ambiguous_position(&mut token.into_inner(), zip_positions, arc_positions, error)
         }
         Rule::infix_arc_position => {

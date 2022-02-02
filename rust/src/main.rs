@@ -90,6 +90,21 @@ mod tests {
     }
 
     #[test]
+    fn explicit_arcs_ambiguous_zip() {
+        assert_eq!(Pattern::new("caciaiB").get_canonical_form(), "izSc2ci2");
+    }
+
+    #[test]
+    fn explicit_zips_ambiguous_arc() {
+        assert_eq!(Pattern::new("czcizcB").get_canonical_form(), "czcizSc2");
+    }
+
+    #[test]
+    fn explicit_zips_ambiguous_zip() {
+        assert!(Pattern::new("czciziB").error().is_some());
+    }
+
+    #[test]
     fn sprung_base() {
         let pattern = Pattern::new("iczS312");
         assert_eq!(*pattern.siteswap(), vec![3, 1, 2]);
@@ -129,7 +144,7 @@ mod tests {
     fn hex_siteswap() {
         assert_eq!(
             Pattern::new("S51").get_traditional_siteswap(),
-            "(ax,2x)(2x,2x)*"
+            "(ax,2x)(2x,2x)"
         );
     }
 
@@ -137,7 +152,7 @@ mod tests {
     fn hand_positions() {
         assert_eq!(
             Pattern::new("iB").get_hand_positions(),
-            "(20)(20).(20,80)(20,80)."
+            "(20)(20).(20,50)(20,50)."
         );
     }
 }

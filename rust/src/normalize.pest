@@ -21,21 +21,32 @@ C = {"C"}
 F = {"F"}
 B = {"B"}
 
-ambiguous_position = { crossed_inverted | crossed | inverted }
+ambiguous_arc_and_zip = { crossed_inverted }
+ambiguous_arc = { crossed }
+ambiguous_zip = { inverted }
 
 infix_coming = { &ANY }
 push_infix = { &ANY }
 
 notation = { 
     SOI ~ (
-    ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ "S" ~ ( // explicit arcs
+    ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ "S" ~ ( // explicit zips, explicit arcs
         digit+ | C | F)) | 
+    ((arc_position ~ "a")* ~ ambiguous_zip ~ "S" ~ ( // explicit arcs, ambiguous zip
+        digit+ | C | F)) | 
+    ((zip_position ~ "z")* ~ ambiguous_arc ~ "S" ~ ( // explicit zips, ambiguous arc
+        digit+ | C | F)) |
     ((zip_position ~ "z")* ~ "S" ~ ( // infix arcs
         (infix_arc_position? ~ push_infix ~ digit)+ | 
         (infix_arc_position? ~ push_infix ~ (C | F)))) |
-    (ambiguous_position ~ "S" ~ (// ambiguous arcs
+    (ambiguous_zip ~ "S" ~ ( // infix arcs, ambiguous zip
+        (infix_arc_position? ~ push_infix ~ digit)+ | 
+        (infix_arc_position? ~ push_infix ~ (C | F)))) |
+    (ambiguous_arc_and_zip ~ "S" ~ ( // ambiguous 
         digit+ | C | F)) |
-    ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ B) | // explicit arcs (box)
-    (ambiguous_position ~ B) // ambiguous arcs (box)
+    ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ B) | // explicit zips, explicit arcs (box)
+    ((zip_position ~ "z")* ~ ambiguous_arc ~ B) | // explicit zips, ambiguous arc (box)
+    ((arc_position ~ "a")* ~ ambiguous_zip ~ B) | // explicit arcs, ambiguous zip (box)
+    (ambiguous_arc_and_zip ~ B) // ambiguous (box)
     ) ~ EOI
 }
