@@ -45,11 +45,12 @@ mod tests {
         assert_eq!(Pattern::new("ScC").get_canonical_form(), "Sc3");
         assert_eq!(Pattern::new("ScF").get_canonical_form(), "Sc4");
         assert_eq!(Pattern::new("Sc5i1").get_canonical_form(), "Sc5i1");
+        assert_eq!(Pattern::new("Sc5n1").get_canonical_form(), "Sc5n1");
     }
 
     #[test]
     fn explicit_arcs() {
-        assert_eq!(Pattern::new("caciaB").get_canonical_form(), "Sc2ci2");
+        assert_eq!(Pattern::new("cacianaB").get_canonical_form(), "Sc2ci2n2");
     }
 
     #[test]
@@ -96,7 +97,7 @@ mod tests {
 
     #[test]
     fn explicit_zips_ambiguous_arc() {
-        assert_eq!(Pattern::new("czcizcB").get_canonical_form(), "czcizSc2");
+        assert_eq!(Pattern::new("czciznzcB").get_canonical_form(), "czciznzSc2");
     }
 
     #[test]
@@ -152,7 +153,7 @@ mod tests {
     fn hand_positions() {
         assert_eq!(
             Pattern::new("iB").get_hand_positions(),
-            "(20)(20).(20,50)(20,50)."
+            "(10)(32).(10,50)(32,50)."
         );
     }
 }

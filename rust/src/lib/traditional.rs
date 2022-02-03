@@ -2,19 +2,33 @@ use super::data::Pattern;
 
 use super::data::Position;
 
-fn get_hand_position(p: &Position) -> String {
+fn get_throw_hand_position(p: &Position) -> String {
     return match p {
-        Position::BottomNatural => "(20)",
-        Position::BottomOpposite => "(-20)",
-        Position::TopNatural => "(20,50)",
-        Position::TopOpposite => "(-20,50)",
+        Position::BottomNatural => "(10)",
+        Position::BottomOpposite => "(-10)",
+        Position::TopNatural => "(10,50)",
+        Position::TopOpposite => "(-10,50)",
+    }
+    .to_string();
+}
+
+fn get_catch_hand_position(p: &Position) -> String {
+    return match p {
+        Position::BottomNatural => "(32)",
+        Position::BottomOpposite => "(-32)",
+        Position::TopNatural => "(32,50)",
+        Position::TopOpposite => "(-32,50)",
     }
     .to_string();
 }
 
 #[allow(dead_code)]
 fn get_hand_positions(a: &Position, b: &Position) -> String {
-    return format!("{}{}.", get_hand_position(a), get_hand_position(b));
+    return format!(
+        "{}{}.",
+        get_throw_hand_position(a),
+        get_catch_hand_position(b)
+    );
 }
 
 impl Pattern {
