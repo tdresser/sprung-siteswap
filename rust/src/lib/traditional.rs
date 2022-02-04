@@ -2,7 +2,16 @@ use super::data::Pattern;
 
 use super::data::Position;
 
-fn get_throw_hand_position(p: &Position) -> String {
+fn get_throw_hand_position(p: &Position, sprung_digit: u32) -> String {
+    if sprung_digit == 2 {
+        return match p {
+            Position::BottomNatural => "(20)",
+            Position::BottomOpposite => "(-20)",
+            Position::TopNatural => "(20,50)",
+            Position::TopOpposite => "(-20,50)",
+        }
+        .to_string();
+    }
     return match p {
         Position::BottomNatural => "(10)",
         Position::BottomOpposite => "(-10)",
@@ -12,7 +21,16 @@ fn get_throw_hand_position(p: &Position) -> String {
     .to_string();
 }
 
-fn get_catch_hand_position(p: &Position) -> String {
+fn get_catch_hand_position(p: &Position, sprung_digit: u32) -> String {
+    if sprung_digit == 2 {
+        return match p {
+            Position::BottomNatural => "(20)",
+            Position::BottomOpposite => "(-20)",
+            Position::TopNatural => "(20,50)",
+            Position::TopOpposite => "(-20,50)",
+        }
+        .to_string();
+    }
     return match p {
         Position::BottomNatural => "(32)",
         Position::BottomOpposite => "(-32)",
@@ -23,11 +41,11 @@ fn get_catch_hand_position(p: &Position) -> String {
 }
 
 #[allow(dead_code)]
-fn get_hand_positions(a: &Position, b: &Position) -> String {
+fn get_hand_positions(a: &Position, b: &Position, sprung_digit: u32) -> String {
     return format!(
         "{}{}.",
-        get_throw_hand_position(a),
-        get_catch_hand_position(b)
+        get_throw_hand_position(a, sprung_digit),
+        get_catch_hand_position(b, sprung_digit)
     );
 }
 
@@ -66,9 +84,14 @@ impl Pattern {
 
     #[allow(dead_code)]
     pub fn get_hand_positions(&self) -> String {
-        let len = num::integer::lcm(self.arc_positions.len(), self.zip_positions.len());
+        let len = num::integer::lcm(
+            num::integer::lcm(self.arc_positions.len(), self.zip_positions.len()),
+            self.siteswap.len(),
+        );
         let mut arc_iter = self.arc_positions.iter().cycle();
         let mut zip_iter = self.zip_positions.iter().cycle();
+        let mut swap_iter = self.siteswap.iter().cycle();
+
         let mut result = "".to_string();
         println!("arc: {}", self.arc_positions().len());
         println!("zip: {}", self.zip_positions().len());
@@ -77,8 +100,9 @@ impl Pattern {
         for i in 0..len {
             let (arc_t, arc_c) = arc_iter.next().unwrap();
             let (zip_t, zip_c) = zip_iter.next().unwrap();
-            let arc = get_hand_positions(arc_t, arc_c);
-            let zip = get_hand_positions(zip_t, zip_c);
+            let digit = swap_iter.next().unwrap();
+            let arc = get_hand_positions(arc_t, arc_c, *digit);
+            let zip = get_hand_positions(zip_t, zip_c, *digit);
             if i % 2 == 0 {
                 result = format!("{}{}{}", result, arc, zip);
             } else {
