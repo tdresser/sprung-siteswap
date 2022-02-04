@@ -10,7 +10,11 @@ async function run() {
     const anim = document.getElementById("anim") as HTMLImageElement;
     const error = document.getElementById("error");
 
-    input.value = "icziczcaB";
+    const queryString = window.location.search;
+    const queryParams = new URLSearchParams(queryString);
+    const pattern = queryParams.get("q");
+
+    input.value = pattern ?? "icziczcaB";
 
     function updateOutput() {
         const pattern = parse(input.value.trim()); 
@@ -27,6 +31,8 @@ async function run() {
         siteswap.textContent = pattern.siteswap;
         hands.textContent = pattern.hands;
         anim.src = pattern.juggle_anim_url;
+
+        window.history.pushState('', '', "?q=" + input.value);
     }
 
     input.addEventListener("input", updateOutput);

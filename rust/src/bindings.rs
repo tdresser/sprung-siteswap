@@ -39,7 +39,7 @@ pub fn parse(s: String) -> ParsedPattern {
                 encode(&hands),
                 ";colors=",
                 encode(&colors),
-                ";bps=5;redirect=true"
+                ";bps=7;redirect=true"
             );
             println!("{}", url);
             return ParsedPattern {
