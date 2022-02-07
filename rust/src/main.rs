@@ -10,6 +10,7 @@ fn main() {
     let mut pattern = Pattern::new("czizczizS312");
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());
+    println!("{}", pattern.get_hand_positions());
 }
 
 #[cfg(test)]

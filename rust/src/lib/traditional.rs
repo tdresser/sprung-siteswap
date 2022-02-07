@@ -40,6 +40,10 @@ fn get_catch_hand_position(p: &Position, sprung_digit: u32) -> String {
     .to_string();
 }
 
+fn collect_cycle<'a, A>(a: &'a Vec<A>, len: usize) -> Vec<&'a A> {
+    return a.iter().cycle().take(len).collect::<Vec<_>>();
+}
+
 #[allow(dead_code)]
 fn get_hand_positions(a: &Position, b: &Position, sprung_digit: u32) -> String {
     return format!(
@@ -78,6 +82,22 @@ impl Pattern {
         return result;
     }
 
+    fn get_origin_beats(&self) -> Vec<usize> {
+        let len = self.siteswap.len();
+        let mut catch_indices: Vec<usize> = vec![0; len];
+        let mut origin_beats: Vec<usize> = vec![0; len];
+
+        for i in 0..len {
+            catch_indices[i] = (i + self.siteswap[i] as usize) % len;
+        }
+
+        for i in 0..len {
+            origin_beats[catch_indices[i] % len] = i;
+        }
+
+        return origin_beats;
+    }
+
     fn num_balls(&self) -> u32 {
         return self.siteswap.iter().sum::<u32>() / (self.siteswap.len() as u32) + 1;
     }
@@ -88,21 +108,20 @@ impl Pattern {
             num::integer::lcm(self.arc_positions.len(), self.zip_positions.len()),
             self.siteswap.len(),
         );
-        let mut arc_iter = self.arc_positions.iter().cycle();
-        let mut zip_iter = self.zip_positions.iter().cycle();
-        let mut swap_iter = self.siteswap.iter().cycle();
+        let arcs = collect_cycle(&self.arc_positions, len);
+        let zips = collect_cycle(&self.zip_positions, len);
+        let swaps = collect_cycle(&self.siteswap, len);
+        let origin_beats_short = &self.get_origin_beats();
+        let origin_beats = collect_cycle(origin_beats_short, len);
 
         let mut result = "".to_string();
-        println!("arc: {}", self.arc_positions().len());
-        println!("zip: {}", self.zip_positions().len());
-        println!("lcm: {}", len);
         // Throws go [arc, zip, zip, arc, ...].
         for i in 0..len {
-            let (arc_t, arc_c) = arc_iter.next().unwrap();
-            let (zip_t, zip_c) = zip_iter.next().unwrap();
-            let digit = swap_iter.next().unwrap();
-            let arc = get_hand_positions(arc_t, arc_c, *digit);
-            let zip = get_hand_positions(zip_t, zip_c, *digit);
+            let (arc_t, arc_c) = arcs[i];
+            let (zip_t, zip_c) = zips[i];
+            let origin_digit = swaps[*origin_beats[i]];
+            let arc = get_hand_positions(arc_t, arc_c, *origin_digit);
+            let zip = get_hand_positions(zip_t, zip_c, 1);
             if i % 2 == 0 {
                 result = format!("{}{}{}", result, arc, zip);
             } else {
