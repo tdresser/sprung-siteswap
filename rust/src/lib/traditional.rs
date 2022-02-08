@@ -2,55 +2,32 @@ use super::data::Pattern;
 
 use super::data::Position;
 
-fn get_throw_hand_position(p: &Position, sprung_digit: u32) -> String {
-    if sprung_digit == 2 {
-        return match p {
-            Position::BottomNatural => "(20)",
-            Position::BottomOpposite => "(-20)",
-            Position::TopNatural => "(20,50)",
-            Position::TopOpposite => "(-20,50)",
-        }
-        .to_string();
-    }
-    return match p {
-        Position::BottomNatural => "(10)",
-        Position::BottomOpposite => "(-10)",
-        Position::TopNatural => "(10,50)",
-        Position::TopOpposite => "(-10,50)",
-    }
-    .to_string();
+#[derive(PartialEq)]
+enum ThrowOrCatch {
+    Throw,
+    Catch,
 }
 
-fn get_catch_hand_position(p: &Position, sprung_digit: u32) -> String {
-    if sprung_digit == 2 {
-        return match p {
-            Position::BottomNatural => "(20)",
-            Position::BottomOpposite => "(-20)",
-            Position::TopNatural => "(20,50)",
-            Position::TopOpposite => "(-20,50)",
-        }
-        .to_string();
+fn get_hand_position(p: &Position, throw_or_catch: ThrowOrCatch, sprung_digit: u32) -> String {
+    let mut x = if sprung_digit == 2 {
+        20
+    } else if throw_or_catch == ThrowOrCatch::Throw {
+        10
+    } else {
+        30
+    };
+    if let Position::BottomOpposite | Position::TopOpposite = p {
+        x = -x;
     }
-    return match p {
-        Position::BottomNatural => "(32)",
-        Position::BottomOpposite => "(-32)",
-        Position::TopNatural => "(32,50)",
-        Position::TopOpposite => "(-32,50)",
-    }
-    .to_string();
+    return if let Position::BottomNatural | Position::BottomOpposite = p {
+        format!("({})", x)
+    } else {
+        format!("({}, 50)", x)
+    };
 }
 
 fn collect_cycle<'a, A>(a: &'a Vec<A>, len: usize) -> Vec<&'a A> {
     return a.iter().cycle().take(len).collect::<Vec<_>>();
-}
-
-#[allow(dead_code)]
-fn get_hand_positions(a: &Position, b: &Position, throw_digit: u32, catch_digit: u32) -> String {
-    return format!(
-        "{}{}.",
-        get_throw_hand_position(a, throw_digit),
-        get_catch_hand_position(b, catch_digit)
-    );
 }
 
 impl Pattern {
@@ -120,23 +97,38 @@ impl Pattern {
 
         // Throws go [arc, zip, zip, arc, ...].
         for i in 0..len {
+            println!("i: {}", i);
             let (arc_t, _) = arcs[i];
             let (zip_t, _) = zips[i];
             let throw_digit = swaps[i];
 
             // Need the position of the NEXT CATCH, which was described on the beat it was thrown.
             let origin_beat = *origin_beats[(i + 1) % len];
+            println!("Origin beat: {}", origin_beat);
 
             let (_, arc_c) = arcs[origin_beat];
             let (_, zip_c) = zips[origin_beat];
             let catch_digit = swaps[origin_beat];
+            println!("arc c: {:?}", arc_c);
+            println!("zip c: {:?}", zip_c);
+            println!("catch: {}", catch_digit);
 
-            let arc = get_hand_positions(arc_t, arc_c, *throw_digit, *catch_digit);
-            let zip = get_hand_positions(zip_t, zip_c, 1, 1);
+            // Needs to go (arc,zip)(zip,arc).
+            let arc_t_str = get_hand_position(arc_t, ThrowOrCatch::Throw, *throw_digit);
+            let zip_t_str = get_hand_position(zip_t, ThrowOrCatch::Throw, 1);
+            let arc_c_str = get_hand_position(arc_c, ThrowOrCatch::Catch, *catch_digit);
+            let zip_c_str = get_hand_position(zip_c, ThrowOrCatch::Catch, 1);
+
             if i % 2 == 0 {
-                result = format!("{}{}{}", result, arc, zip);
+                result = format!(
+                    "{}{}{}.{}{}.",
+                    result, arc_t_str, zip_c_str, zip_t_str, arc_c_str
+                );
             } else {
-                result = format!("{}{}{}", result, zip, arc);
+                result = format!(
+                    "{}{}{}.{}{}.",
+                    result, zip_t_str, arc_c_str, arc_t_str, zip_c_str
+                );
             }
         }
         return result;
