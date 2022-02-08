@@ -45,11 +45,11 @@ fn collect_cycle<'a, A>(a: &'a Vec<A>, len: usize) -> Vec<&'a A> {
 }
 
 #[allow(dead_code)]
-fn get_hand_positions(a: &Position, b: &Position, sprung_digit: u32) -> String {
+fn get_hand_positions(a: &Position, b: &Position, throw_digit: u32, catch_digit: u32) -> String {
     return format!(
         "{}{}.",
-        get_throw_hand_position(a, sprung_digit),
-        get_catch_hand_position(b, sprung_digit)
+        get_throw_hand_position(a, throw_digit),
+        get_catch_hand_position(b, catch_digit)
     );
 }
 
@@ -115,13 +115,24 @@ impl Pattern {
         let origin_beats = collect_cycle(origin_beats_short, len);
 
         let mut result = "".to_string();
+
+        println!("Origin beats: {:?}", origin_beats);
+
         // Throws go [arc, zip, zip, arc, ...].
         for i in 0..len {
-            let (arc_t, arc_c) = arcs[i];
-            let (zip_t, zip_c) = zips[i];
-            let origin_digit = swaps[*origin_beats[i]];
-            let arc = get_hand_positions(arc_t, arc_c, *origin_digit);
-            let zip = get_hand_positions(zip_t, zip_c, 1);
+            let (arc_t, _) = arcs[i];
+            let (zip_t, _) = zips[i];
+            let throw_digit = swaps[i];
+
+            // Need the position of the NEXT CATCH, which was described on the beat it was thrown.
+            let origin_beat = *origin_beats[(i + 1) % len];
+
+            let (_, arc_c) = arcs[origin_beat];
+            let (_, zip_c) = zips[origin_beat];
+            let catch_digit = swaps[origin_beat];
+
+            let arc = get_hand_positions(arc_t, arc_c, *throw_digit, *catch_digit);
+            let zip = get_hand_positions(zip_t, zip_c, 1, 1);
             if i % 2 == 0 {
                 result = format!("{}{}{}", result, arc, zip);
             } else {

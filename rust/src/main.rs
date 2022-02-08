@@ -7,7 +7,7 @@ fn main() {
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());*/
 
-    let mut pattern = Pattern::new("czizczizS312");
+    let mut pattern = Pattern::new("izS42");
     println!("{:?}\n", pattern);
     println!("{}", pattern.get_canonical_form());
     println!("{}", pattern.get_hand_positions());
