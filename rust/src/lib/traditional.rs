@@ -81,10 +81,14 @@ impl Pattern {
 
     #[allow(dead_code)]
     pub fn get_hand_positions(&self) -> String {
-        let len = num::integer::lcm(
+        let mut len = num::integer::lcm(
             num::integer::lcm(self.arc_positions.len(), self.zip_positions.len()),
             self.siteswap.len(),
         );
+        // We need an even length for hand position computation to work.
+        if len % 2 == 1 {
+            len = len * 2;
+        }
         let arcs = collect_cycle(&self.arc_positions, len);
         let zips = collect_cycle(&self.zip_positions, len);
         let swaps = collect_cycle(&self.siteswap, len);
