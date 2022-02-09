@@ -1,3 +1,4 @@
+use num::integer::lcm;
 use pest::{
     iterators::{Pair, Pairs},
     Parser,
@@ -135,34 +136,60 @@ fn error_pattern(message: String) -> Pattern {
 }
 
 // Collapses repetition. e.g., cici -> ci.
-fn collapse_positions(positions: &Positions) -> Positions {
-    for n in (1..positions.len() + 1).rev() {
+fn collapse<T: PartialEq + Clone + std::fmt::Debug>(ar: &Vec<T>) -> Vec<T> {
+    let len = ar.len();
+    for n in (1..len + 1).rev() {
         println!("N {}", n);
-        // Can we divide |positions| into chunks of length n?
-        if positions.len() % n != 0 {
+        // Can we divide |ar| into chunks of length n?
+        if ar.len() % n != 0 {
             continue;
         }
         // Are all chunks equal?
-        let mut chunks = positions.chunks_exact(positions.len() / n);
+        let mut chunks = ar.chunks_exact(len / n);
         let first = chunks.nth(0).unwrap();
         if chunks.all(|x| x == first) {
             // All chunks are equal, we're done.
             return first.to_vec();
         }
     }
-    println!("{:?}", positions);
+    println!("{:?}", ar);
     unreachable!();
 }
 
 impl Pattern {
-    fn normalize(&mut self) {
+    fn normalized(mut self) -> Pattern {
         if self.zip_positions.len() == 0 {
             self.zip_positions.push(DEFAULT_POSITION);
         }
         if self.arc_positions.len() == 0 {
             self.arc_positions.push(DEFAULT_POSITION);
         }
-        self.zip_positions = collapse_positions(&self.zip_positions);
+        self.arc_positions = collapse(&self.arc_positions);
+        self.zip_positions = collapse(&self.zip_positions);
+        self.siteswap = collapse(&self.siteswap);
+
+        let len = lcm(
+            lcm(self.arc_positions.len(), self.zip_positions.len()),
+            self.siteswap.len(),
+        );
+
+        // Figure out what rotation of the siteswap maximizes it's value when interpreted as an integer.
+        // e.g., 315 -> 531.
+        let mut max = 0u32;
+        let mut max_offset = 0usize;
+        for i in 0..len {
+            let combined_value = self.siteswap.iter().fold(0, |r, digit| r * 10 + digit);
+            if combined_value > max {
+                max = combined_value;
+                max_offset = i;
+            }
+        }
+
+        self.arc_positions.rotate_left(max_offset);
+        self.zip_positions.rotate_left(max_offset);
+        self.siteswap.rotate_left(max_offset);
+
+        return self;
     }
 
     pub(super) fn parse(s: &str) -> Pattern {
@@ -213,7 +240,7 @@ impl Pattern {
                     siteswap,
                     error: None,
                 };
-                pattern.normalize();
+                pattern = pattern.normalized();
                 return pattern;
             }
         }

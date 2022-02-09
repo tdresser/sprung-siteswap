@@ -117,9 +117,27 @@ mod tests {
     }
 
     #[test]
-    fn collapse_zipped() {
+    fn collapse_zips() {
         let mut pattern = Pattern::new("izicziziczB");
         assert_eq!(pattern.get_canonical_form(), "izcizS2");
+    }
+
+    #[test]
+    fn collapse_arcs() {
+        let mut pattern = Pattern::new("iaicaiaicaB");
+        assert_eq!(pattern.get_canonical_form(), "Si2ci2");
+    }
+
+    #[test]
+    fn collapse_siteswap() {
+        let mut pattern = Pattern::new("S531531");
+        assert_eq!(pattern.get_canonical_form(), "S531");
+    }
+
+    #[test]
+    fn rotate_siteswap() {
+        let mut pattern = Pattern::new("S315");
+        assert_eq!(pattern.get_canonical_form(), "S531");
     }
 
     #[test]

@@ -12,7 +12,7 @@ esbuild
     plugins: [
       wasmpack.wasmPack({
         path: "rust",
-        profile: "dev",//prod ? "release " : "dev", // TODO
+        profile: prod ? "release" : "dev", 
         target: "web",
       }),
     ],
