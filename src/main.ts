@@ -30,6 +30,7 @@ async function run() {
         canonical.textContent = pattern.canonical;
         siteswap.textContent = pattern.siteswap;
         hands.textContent = pattern.hands;
+        anim.src = "";
         anim.src = pattern.juggle_anim_url;
 
         window.history.pushState('', '', "?q=" + input.value);

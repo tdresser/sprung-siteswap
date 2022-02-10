@@ -97,25 +97,18 @@ impl Pattern {
 
         let mut result = "".to_string();
 
-        println!("Origin beats: {:?}", origin_beats);
-
         // Throws go [arc, zip, zip, arc, ...].
         for i in 0..len {
-            println!("i: {}", i);
             let (arc_t, _) = arcs[i];
             let (zip_t, _) = zips[i];
             let throw_digit = swaps[i];
 
             // Need the position of the NEXT CATCH, which was described on the beat it was thrown.
             let origin_beat = *origin_beats[(i + 1) % len];
-            println!("Origin beat: {}", origin_beat);
 
             let (_, arc_c) = arcs[origin_beat];
             let (_, zip_c) = zips[origin_beat];
             let catch_digit = swaps[origin_beat];
-            println!("arc c: {:?}", arc_c);
-            println!("zip c: {:?}", zip_c);
-            println!("catch: {}", catch_digit);
 
             // Needs to go (arc,zip)(zip,arc).
             let arc_t_str = get_hand_position(arc_t, ThrowOrCatch::Throw, *throw_digit);

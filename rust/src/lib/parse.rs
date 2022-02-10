@@ -139,7 +139,6 @@ fn error_pattern(message: String) -> Pattern {
 fn collapse<T: PartialEq + Clone + std::fmt::Debug>(ar: &Vec<T>) -> Vec<T> {
     let len = ar.len();
     for n in (1..len + 1).rev() {
-        println!("N {}", n);
         // Can we divide |ar| into chunks of length n?
         if ar.len() % n != 0 {
             continue;
@@ -152,8 +151,17 @@ fn collapse<T: PartialEq + Clone + std::fmt::Debug>(ar: &Vec<T>) -> Vec<T> {
             return first.to_vec();
         }
     }
-    println!("{:?}", ar);
-    unreachable!();
+    unreachable!("{:?}", ar);
+}
+
+fn rotate<T: Clone>(a: Vec<T>, offset: usize) -> Vec<T> {
+    let len = a.len();
+    return a
+        .into_iter()
+        .cycle()
+        .skip(offset)
+        .take(len)
+        .collect::<Vec<T>>();
 }
 
 impl Pattern {
@@ -183,11 +191,12 @@ impl Pattern {
                 max = combined_value;
                 max_offset = i;
             }
+            self.siteswap.rotate_left(1);
         }
 
-        self.arc_positions.rotate_left(max_offset);
-        self.zip_positions.rotate_left(max_offset);
-        self.siteswap.rotate_left(max_offset);
+        self.arc_positions = rotate(self.arc_positions, max_offset);
+        self.zip_positions = rotate(self.zip_positions, max_offset);
+        self.siteswap = rotate(self.siteswap, max_offset);
 
         return self;
     }
@@ -209,7 +218,6 @@ impl Pattern {
         }
         let mut pairs = parse_result.unwrap();
         let inner = pairs.next().unwrap().into_inner();
-        println!("{}", pairs);
         for token in inner {
             parse_token(
                 token,
