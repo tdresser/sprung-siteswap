@@ -50,6 +50,11 @@ mod tests {
     }
 
     #[test]
+    fn infix_arcs_missing_first() {
+        assert_eq!(Pattern::new("S5i1").get_canonical_form(), "S5i1");
+    }
+
+    #[test]
     fn explicit_arcs() {
         assert_eq!(Pattern::new("cacianaB").get_canonical_form(), "Sc2ci2n2");
     }

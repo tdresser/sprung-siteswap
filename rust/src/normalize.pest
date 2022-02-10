@@ -30,15 +30,15 @@ push_infix = { &ANY }
 
 notation = { 
     SOI ~ (
+    ((zip_position ~ "z")* ~ "S" ~ ( // infix arcs
+        (infix_arc_position? ~ push_infix ~ digit)+ | 
+        (infix_arc_position? ~ push_infix ~ (C | F)))) |
     ((zip_position ~ "z")* ~ (arc_position ~ "a")* ~ "S" ~ ( // explicit zips, explicit arcs
         digit+ | C | F)) | 
     ((arc_position ~ "a")* ~ ambiguous_zip ~ "S" ~ ( // explicit arcs, ambiguous zip
         digit+ | C | F)) | 
     ((zip_position ~ "z")* ~ ambiguous_arc ~ "S" ~ ( // explicit zips, ambiguous arc
-        digit+ | C | F)) |
-    ((zip_position ~ "z")* ~ "S" ~ ( // infix arcs
-        (infix_arc_position? ~ push_infix ~ digit)+ | 
-        (infix_arc_position? ~ push_infix ~ (C | F)))) |
+        digit+ | C | F)) |    
     (ambiguous_zip ~ "S" ~ ( // infix arcs, ambiguous zip
         (infix_arc_position? ~ push_infix ~ digit)+ | 
         (infix_arc_position? ~ push_infix ~ (C | F)))) |
