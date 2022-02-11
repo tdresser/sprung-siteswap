@@ -24,10 +24,15 @@
       font-size:1.3em;
       margin-bottom:0.5em;
     }
+    #bps {
+      width:100%;
+    }
   </style>
 </head>
 <body>
   <input type="text" id="input"></input>
+  <input type="range" min="1" max="20" value="5" step="0.1" id="bps">
+  <div id="bps_display"></div>
   <div id="error"></div>
   <div id="canonical"></div>
   <div id="siteswap"></div>

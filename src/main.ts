@@ -9,6 +9,15 @@ async function run() {
     const hands = document.getElementById("hands");
     const anim = document.getElementById("anim") as HTMLImageElement;
     const error = document.getElementById("error");
+    const bps = document.getElementById("bps") as HTMLInputElement;
+    const bps_display = document.getElementById("bps_display");
+
+    function updateBps() {
+        bps_display.textContent = bps.value;
+        updateOutput();
+    }
+
+    bps.addEventListener("change", updateBps);
 
     const queryString = window.location.search;
     const queryParams = new URLSearchParams(queryString);
@@ -31,13 +40,18 @@ async function run() {
         siteswap.textContent = pattern.siteswap;
         hands.textContent = pattern.hands;
         anim.src = "";
-        anim.src = pattern.juggle_anim_url;
+        let url = pattern.juggle_anim_url;
+        url = url.replace(/bps=\d*/, "bps=" + bps.value);
+        anim.src = url;
 
         window.history.pushState('', '', "?q=" + input.value);
+
     }
 
     input.addEventListener("input", updateOutput);
-    updateOutput();
+    //updateOutput();
+    updateBps();
+
 }
 run();
 
