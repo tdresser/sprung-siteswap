@@ -180,4 +180,14 @@ mod tests {
             "(20)(30, 50).(10, 50)(20).(10, 50)(20).(20)(30, 50)."
         );
     }
+
+    #[test]
+    fn hand_position_sequence() {
+        let pattern = Pattern::new("izczB");
+        assert_eq!(
+            pattern.get_hand_positions(),
+            "(20)(-30).(10, 50)(20).(-10)(20).(20)(30, 50)."
+        );
+        assert_eq!(pattern.get_traditional_siteswap(), "(4,2x)(2x,4)");
+    }
 }

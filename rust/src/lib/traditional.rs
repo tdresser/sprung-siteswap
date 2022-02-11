@@ -31,10 +31,23 @@ fn collect_cycle<'a, A>(a: &'a Vec<A>, len: usize) -> Vec<&'a A> {
 }
 
 impl Pattern {
+    fn lcm_len(&self) -> usize {
+        return num::integer::lcm(
+            num::integer::lcm(self.arc_positions.len(), self.zip_positions.len()),
+            self.siteswap.len(),
+        );
+    }
+
     #[allow(dead_code)]
     pub fn get_traditional_siteswap(&self) -> String {
         let mut result = String::new();
-        for (i, digit) in self.siteswap.iter().enumerate() {
+        for (i, digit) in self
+            .siteswap
+            .iter()
+            .cycle()
+            .take(self.lcm_len())
+            .enumerate()
+        {
             let crossing = if digit % 2 == 0 { "" } else { "x" };
             let digit_str = format!("{:x}{}", digit * 2, crossing);
             result = match i % 2 {
@@ -43,7 +56,7 @@ impl Pattern {
                 _ => unreachable!(),
             }
         }
-        if self.siteswap.len() % 2 == 1 {
+        if (self.lcm_len()) % 2 == 1 {
             result += "*";
         }
         return result;
@@ -60,12 +73,14 @@ impl Pattern {
     }
 
     fn get_origin_beats(&self) -> Vec<usize> {
-        let len = self.siteswap.len();
+        let len = self.lcm_len();
+        println!("len: {}", len);
         let mut catch_indices: Vec<usize> = vec![0; len];
         let mut origin_beats: Vec<usize> = vec![0; len];
+        let siteswap_repeated = collect_cycle(&self.siteswap, len);
 
         for i in 0..len {
-            catch_indices[i] = (i + self.siteswap[i] as usize) % len;
+            catch_indices[i] = (i + *siteswap_repeated[i] as usize) % len;
         }
 
         for i in 0..len {
@@ -81,11 +96,10 @@ impl Pattern {
 
     #[allow(dead_code)]
     pub fn get_hand_positions(&self) -> String {
-        let mut len = num::integer::lcm(
-            num::integer::lcm(self.arc_positions.len(), self.zip_positions.len()),
-            self.siteswap.len(),
-        );
+        let mut len = self.lcm_len();
         // We need an even length for hand position computation to work.
+        // TODO: which of these is more correct?
+        //if self.siteswap.len() % 2 == 1 {
         if len % 2 == 1 {
             len = len * 2;
         }
@@ -94,6 +108,8 @@ impl Pattern {
         let swaps = collect_cycle(&self.siteswap, len);
         let origin_beats_short = &self.get_origin_beats();
         let origin_beats = collect_cycle(origin_beats_short, len);
+
+        println!("origin_beats: {:?}", origin_beats);
 
         let mut result = "".to_string();
 
@@ -115,6 +131,11 @@ impl Pattern {
             let zip_t_str = get_hand_position(zip_t, ThrowOrCatch::Throw, 1);
             let arc_c_str = get_hand_position(arc_c, ThrowOrCatch::Catch, *catch_digit);
             let zip_c_str = get_hand_position(zip_c, ThrowOrCatch::Catch, 1);
+
+            println!("i: {}", i);
+            println!("origin: {}", origin_beat);
+            println!("zip_t: {:?}", zip_t);
+            println!("zip_c: {:?}", zip_c);
 
             if i % 2 == 0 {
                 result = format!(
