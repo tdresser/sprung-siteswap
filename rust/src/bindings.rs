@@ -31,15 +31,18 @@ pub fn parse(s: String) -> ParsedPattern {
             let siteswap = pattern.get_traditional_siteswap();
             let hands = pattern.get_hand_positions();
             let colors = pattern.get_colors();
+            let bps = pattern.get_bps();
             let url = format!(
-                "https://jugglinglab.org/anim?{}{}{}{}{}{}{}",
+                "https://jugglinglab.org/anim?{}{}{}{}{}{}{}{}{}",
                 "pattern=",
                 encode(&siteswap),
                 ";hands=",
                 encode(&hands),
                 ";colors=",
                 encode(&colors),
-                ";bps=7;redirect=true"
+                ";bps=",
+                bps,
+                ";redirect=true"
             );
             println!("{}", url);
             return ParsedPattern {

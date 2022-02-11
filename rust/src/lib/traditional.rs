@@ -1,3 +1,5 @@
+use num::integer::Roots;
+
 use super::data::Pattern;
 
 use super::data::Position;
@@ -36,6 +38,12 @@ impl Pattern {
             num::integer::lcm(self.arc_positions.len(), self.zip_positions.len()),
             self.siteswap.len(),
         );
+    }
+
+    #[allow(dead_code)]
+    pub fn get_bps(&self) -> u32 {
+        let max_height = self.siteswap.iter().max().unwrap();
+        return (max_height).sqrt() * 5;
     }
 
     #[allow(dead_code)]
